@@ -1,3 +1,6 @@
+from random import expovariate
+
+
 class Device:
     count = 0
 
@@ -6,16 +9,19 @@ class Device:
         self.id = Device.count
         self.fragment = None
         # false - прибор свободен; true - прибор занят
-        self.service_flag = False
+        self.is_free = True
         self.mu = mu
 
     def to_occupy(self, fragment):
-        self.service_flag = True
+        self.is_free = False
         self.fragment = fragment
 
     def to_free(self):
-        self.service_flag = False
+        self.is_free = True
         self.fragment = None
 
     def get_fragment(self):
         return self.fragment
+
+    def get_service_duration(self):
+        return expovariate(self.mu)
