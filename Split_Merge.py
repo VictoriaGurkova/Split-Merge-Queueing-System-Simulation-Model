@@ -1,5 +1,4 @@
 from Demand import Demand
-from Device import Device
 from queue import Queue
 from random import expovariate, choice
 
@@ -38,8 +37,12 @@ class SplitMerge:
         # планируется время поступления следующего требования
         self.arrival_time += expovariate(self.la)
 
-    def start_service_demand(self):
-        pass
+    def demand_service_start(self):
+        if self.wrapper.get_amount_of_free_devices() >= self.list_of_amounts_fragments[0]:
+            self.wrapper.fragments_distribution(self.list_of_queues[0].get())
+        else:
+            self.wrapper.fragments_distribution(self.list_of_queues[1].get())
+        # TODO : определить ближайшую длительность обслуживания
 
 
 if __name__ == '__main__':
