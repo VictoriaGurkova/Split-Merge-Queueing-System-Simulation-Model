@@ -34,6 +34,7 @@ class Wrapper_for_Devices:
         for id_demand in self.get_demands_on_devices():
             for device in self.list_of_devices:
                 if not device.is_free() and device.fragment.parent_id == id_demand:
+                    # TODO: определить ближайшее завершение обслуживание требования
                     pass
 
     def get_demands_on_devices(self):
