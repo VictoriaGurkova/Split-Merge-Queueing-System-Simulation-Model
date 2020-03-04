@@ -8,9 +8,6 @@ class Wrapper_for_Devices:
         self.mu = mu
         # генерируется список amount_of_devices приборов с интенсивностями mu
         self.list_of_devices = [Device(self.mu) for _ in range(amount_of_devices)]
-        # список для хранения длительностей обслуживания фрагментов приборами
-        # если прибор свободен - то время обслуживания минус бесконечность
-        self.list_of_durations_service = [float('-inf') for _ in range(amount_of_devices)]
 
     # распределяет фрагменты по приборам, устанавливает соответствующее время обслуживания
     def fragments_distribution(self, demand):
@@ -18,11 +15,9 @@ class Wrapper_for_Devices:
         # раскидываем фрагменты по приборам
         for device in self.list_of_devices:
             # если колличесвто свободных приборов больше либо равно количеству фрагментов
-            if device.is_free and count < demand.amount_of_fragments:
+            if device.is_free and count < demand.amount_of_fragments - 1:
                 # занимаем прибор фрагментом
                 device.to_occupy(demand.list_of_fragments[count])
-                # записываем длительность обслуживания фрагмента в list_of_durations_service
-                self.list_of_durations_service[self.list_of_devices.index(device)] = device.get_service_duration()
                 count += 1
 
     # возвращает количество свободных приборов
@@ -34,16 +29,19 @@ class Wrapper_for_Devices:
                 amount += 1
         return amount
 
+    def get_min_service_duration_for_demand(self):
+
+        for id_demand in self.get_demands_on_devices():
+            for device in self.list_of_devices:
+                if not device.is_free() and device.fragment.parent_id == id_demand:
+                    pass
+
     def get_demands_on_devices(self):
-        demands_on_devices = []
+        id_demands_on_devices = []
         for device in self.list_of_devices:
-            if not device.is_free() and device.fragment.parent_id not in demands_on_devices:
-                demands_on_devices.append(device.fragment.parent_id)
-        return demands_on_devices
+            if not device.is_free() and device.fragment.parent_id not in id_demands_on_devices:
+                id_demands_on_devices.append(device.fragment.parent_id)
+        return id_demands_on_devices
 
     # TODO : функцию для поиска ближайшего окончания обслуживания
     #  (т.е минимум из максимумов времени обслуживания требований)
-
-    # возвращает максимальную длительность обслуживания
-    def get_max_time(self):
-        return max(self.list_of_durations_service)
