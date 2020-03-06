@@ -8,7 +8,6 @@ class Device:
         Device.count += 1
         self.id = Device.count
         self.fragment = None
-        # false - прибор свободен; true - прибор занят
         self.is_free = True
         self.mu = mu
         self.service_duration = float('-inf')

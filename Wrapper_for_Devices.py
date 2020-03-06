@@ -44,5 +44,3 @@ class Wrapper_for_Devices:
                 id_demands_on_devices.append(device.fragment.parent_id)
         return id_demands_on_devices
 
-    # TODO : функцию для поиска ближайшего окончания обслуживания
-    #  (т.е минимум из максимумов времени обслуживания требований)
