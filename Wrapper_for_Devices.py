@@ -29,13 +29,29 @@ class Wrapper_for_Devices:
                 amount += 1
         return amount
 
+    # возвращает ближайшее время окончания обслуживания требования
     def get_min_service_duration_for_demand(self):
+        lists_of_service_duration_fragments = self.get_lists_of_service_duration_fragments()
+        # список длительностей обслуживания всех требований на приборах в данный момент
+        max_service_duration_of_fragments = []
+        for duration in lists_of_service_duration_fragments:
+            max_service_duration_of_fragments.append(max(duration))
+        return min(max_service_duration_of_fragments)
 
-        for id_demand in self.get_demands_on_devices():
+    # возвращает список списков длительностей обслуживания фрагментов каждого требования в сети
+    def get_lists_of_service_duration_fragments(self):
+        list_demands_on_devices = self.get_demands_on_devices()
+        lists_of_service_duration_fragments = [[] for _ in range(len(list_demands_on_devices))]
+        # проходим по списку id требований, которые сейчас находятся на обслуживании
+        for id_demand in list_demands_on_devices:
+            # проъходим по всем приборам
             for device in self.list_of_devices:
+                # если фрагмент на данном приборе принадлежит требованию с id равным id_demand
                 if not device.is_free() and device.fragment.parent_id == id_demand:
-                    # TODO: определить ближайшее завершение обслуживание требования
-                    pass
+                    # заполняем список длительностями обслуживания фрагментов данного требования
+                    lists_of_service_duration_fragments[list_demands_on_devices.index(id_demand)] \
+                        .append(device.service_duration)
+        return lists_of_service_duration_fragments
 
     def get_demands_on_devices(self):
         id_demands_on_devices = []
@@ -43,4 +59,5 @@ class Wrapper_for_Devices:
             if not device.is_free() and device.fragment.parent_id not in id_demands_on_devices:
                 id_demands_on_devices.append(device.fragment.parent_id)
         return id_demands_on_devices
+
 
