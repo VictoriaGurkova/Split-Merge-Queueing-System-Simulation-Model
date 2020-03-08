@@ -1,15 +1,14 @@
-from Demand import Demand
-from queue import Queue
-from random import expovariate, choice
+from random import expovariate, randint
 
+from Demand import Demand
 from Wrapper_for_Devices import Wrapper_for_Devices
 
 
 class SplitMerge:
-    def __init__(self, Lambda, mu, amount_of_devices, list_of_amounts_fragments):
-        self.Lambda = Lambda
+    def __init__(self, la, mu, amount_of_devices, list_of_amounts_fragments):
+        self.Lambda = la
         self.current_time = 0
-        self.arrival_time = expovariate(Lambda)
+        self.arrival_time = expovariate(la)
         self.service_start_time = float('inf')
         self.leaving_time = float('inf')
         self.amount_of_served_demands = 0
@@ -19,39 +18,38 @@ class SplitMerge:
         self.list_of_amounts_fragments = list_of_amounts_fragments
         self.wrapper = Wrapper_for_Devices(mu, amount_of_devices)
         # генерируются очереди, количество которых равно количеству классов требований
-        self.list_of_queues = [Queue() for _ in range(len(list_of_amounts_fragments))]
+        self.list_of_queues = [[] for _ in range(len(list_of_amounts_fragments))]
 
     # обрабатывает поступление требований в сеть
     def arrival_of_demand(self):
-        # рандомно создается требование 1го или 2го класса TODO: добавить в Demand конкретный класс
-        demand = Demand(self.arrival_time, choice(self.list_of_amounts_fragments))
-        # индекс очереди для определённого класса требований
-        # TODO: сделать очередь списком
-        index_of_class = self.list_of_amounts_fragments.index(demand.amount_of_fragments)
-        # если очередь данного класса пуста и свободных приборов больше либо равно чем фрагментов требования
-        # TODO: вынести вфункцию can_occupy
-        if self.list_of_queues[index_of_class].empty() and \
-                self.wrapper.get_amount_of_free_devices() >= demand.amount_of_fragments:
-            # устанавливаем время начала обслуживания
+        demand_class_id = randint(0, len(self.list_of_amounts_fragments) - 1)
+        demand = Demand(self.arrival_time, demand_class_id, self.list_of_amounts_fragments[demand_class_id])
+        if self.can_occupy(demand):
             self.service_start_time = self.current_time
-        # требование помещается в очередь соответствующего класса
-        self.list_of_queues[index_of_class].put(demand)
+        self.list_of_queues[demand_class_id].append(demand)
         # планируется время поступления следующего требования
         self.arrival_time += expovariate(self.Lambda)
 
     def demand_service_start(self):
-        # TODO: вынести в функцию if_possible
-        # TODO: сделать for, чтобы можно было проверять любое количество очередей
-        if self.wrapper.get_amount_of_free_devices() >= self.list_of_amounts_fragments[0]:
-            demand = self.list_of_queues[0].get()
-            self.wrapper.distribute_fragments(demand)
-        else:
-            demand = self.list_of_queues[1].get()
-            self.wrapper.distribute_fragments(demand)
-        demand.service_start_time = self.current_time
-        self.leaving_time = self.current_time + self.wrapper.get_min_service_duration_for_demand()
-        # !!!
-        self.service_start_time = float('inf')
+        try:
+            demand = None
+            for i in range(len(self.list_of_amounts_fragments)):
+                if self.can_take_demand_for_service(i):
+                    demand = self.list_of_queues[i].pop(0)
+                    self.wrapper.distribute_fragments(demand)
+                    break
+            demand.service_start_time = self.current_time
+        finally:
+            self.leaving_time = self.current_time + self.wrapper.get_min_service_duration_for_demand()
+            self.service_start_time = float('inf')
+
+    # проверяется, может ли требрвания поместиться на приборы
+    def can_occupy(self, demand):
+        return not self.list_of_queues[demand.class_id] and \
+            self.wrapper.get_amount_of_free_devices() >= demand.amount_of_fragments
+
+    def can_take_demand_for_service(self, i):
+        return self.wrapper.get_amount_of_free_devices() >= self.list_of_amounts_fragments[i]
 
 
 if __name__ == '__main__':

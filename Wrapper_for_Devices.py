@@ -22,12 +22,7 @@ class Wrapper_for_Devices:
 
     # возвращает количество свободных приборов
     def get_amount_of_free_devices(self):
-        # amount = 0
-        # for device in self.list_of_devices:
-        #     # если прибор свободен
-        #     if device.is_free:
-        #         amount += 1
-        return (True for device in self.list_of_devices if device.is_free)
+        return len([True for device in self.list_of_devices if device.is_free])
 
     # возвращает ближайшее время окончания обслуживания требования
     def get_min_service_duration_for_demand(self):
