@@ -1,0 +1,4 @@
+DEBUG:root:Demand arrival: ID - 1 . Class ID - 1 . Current Time: 1.1022400771934653
+DEBUG:root:Demand arrival: ID - 2 . Class ID - 0 . Current Time: 3.4531225872078695
+DEBUG:root:Demand arrival: ID - 3 . Class ID - 1 . Current Time: 4.490099233227479
+DEBUG:root:Demand start service: ID - 2 . Class ID - 0 . Current Time: 4.490099233227479

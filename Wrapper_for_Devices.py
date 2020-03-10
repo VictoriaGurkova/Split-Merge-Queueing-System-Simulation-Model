@@ -42,7 +42,7 @@ class Wrapper_for_Devices:
             # проходим по всем приборам
             for device in self.list_of_devices:
                 # если фрагмент на данном приборе принадлежит требованию с id равным id_demand
-                if not device.is_free() and device.fragment.parent_id == id_demand:
+                if not device.is_free and device.fragment.parent_id == id_demand:
                     # заполняем список длительностями обслуживания фрагментов данного требования
                     lists_of_service_duration_fragments[list_demands_on_devices.index(id_demand)] \
                         .append(device.service_duration)
@@ -51,6 +51,16 @@ class Wrapper_for_Devices:
     def get_id_demands_on_devices(self):
         id_demands_on_devices = set()
         for device in self.list_of_devices:
-            if not device.is_free():
+            if not device.is_free:
                 id_demands_on_devices.add(device.fragment.parent_id)
         return list(id_demands_on_devices)
+
+    def get_id_demand_with_min_service_duration(self):
+        for device in self.list_of_devices:
+            if device.service_duration == self.get_min_service_duration_for_demand():
+                return device.fragment.parent_id
+
+    def to_free_demand_fragments(self, demand_id):
+        for device in self.list_of_devices:
+            if device.fragment.parent_id == demand_id:
+                device.to_free()
