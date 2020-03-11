@@ -38,18 +38,17 @@ class SplitMerge:
 
     def demand_service_start(self):
         try:
-            demand = None
             for class_id in range(len(self.list_of_amounts_fragments)):
-                if self.can_occupy_devices(class_id):
+                if self.can_occupy(class_id) and self.list_of_queues[class_id]:
                     demand = self.list_of_queues[class_id].pop(0)
                     logging.debug("Demand start service: ID - " + str(demand.id) + " . Class ID - " +
                                   str(demand.class_id) + " . Current Time: " + str(self.current_time))
                     self.wrapper.distribute_fragments(demand)
                     self.list_of_demands_in_network.append(demand)
+                    demand.service_start_time = self.current_time
+                    self.leaving_time = self.current_time + self.wrapper.get_min_service_duration_for_demand()
                     break
-            demand.service_start_time = self.current_time
         finally:
-            self.leaving_time = self.current_time + self.wrapper.get_min_service_duration_for_demand()
             self.service_start_time = float('inf')
 
     def leaving_demand(self):
@@ -64,6 +63,7 @@ class SplitMerge:
                       " . Current Time: " + str(self.current_time))
         demand.leaving_time = self.current_time
         self.time_demands_in_network += demand.leaving_time - demand.arrival_time
+        self.amount_of_served_demands += 1
         if self.check_if_possible_put_demand_on_devices():
             self.service_start_time = self.current_time
         self.leaving_time = float('inf')
@@ -73,21 +73,26 @@ class SplitMerge:
             self.current_time = min(self.arrival_time, self.service_start_time, self.leaving_time)
             if self.current_time == self.arrival_time:
                 self.arrival_of_demand()
-                time.sleep(0.2)
+                # time.sleep(0.2)
                 continue
             if self.current_time == self.service_start_time:
                 self.demand_service_start()
-                time.sleep(0.2)
+                # time.sleep(0.2)
                 continue
             if self.current_time == self.leaving_time:
                 self.leaving_demand()
-                time.sleep(0.2)
+                # time.sleep(0.2)
                 continue
+        print(self.time_demands_in_network)
+        print(self.amount_of_served_demands)
         print(self.time_demands_in_network / self.amount_of_served_demands)
 
     def can_occupy_devices(self, class_id):
-        return self.list_of_queues[class_id] and \
+        return not self.list_of_queues[class_id] and \
                self.wrapper.get_amount_of_free_devices() >= self.list_of_amounts_fragments[class_id]
+
+    def can_occupy(self, class_id):
+        return self.wrapper.get_amount_of_free_devices() >= self.list_of_amounts_fragments[class_id]
 
     def check_if_possible_put_demand_on_devices(self):
         return len(
@@ -95,5 +100,5 @@ class SplitMerge:
 
 
 if __name__ == '__main__':
-    sp = SplitMerge(0.5, 1, 3, [1, 2])
+    sp = SplitMerge(0.5, 1, 4, [1, 2])
     sp.main(100)

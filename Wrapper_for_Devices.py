@@ -15,7 +15,7 @@ class Wrapper_for_Devices:
         # раскидываем фрагменты по приборам
         for device in self.list_of_devices:
             # если колличесвто свободных приборов больше либо равно количеству фрагментов
-            if device.is_free and count < demand.amount_of_fragments - 1:
+            if device.is_free and count < demand.amount_of_fragments:
                 # занимаем прибор фрагментом
                 device.to_occupy(demand.list_of_fragments[count])
                 count += 1
@@ -62,5 +62,5 @@ class Wrapper_for_Devices:
 
     def to_free_demand_fragments(self, demand_id):
         for device in self.list_of_devices:
-            if device.fragment.parent_id == demand_id:
+            if not device.is_free and device.fragment.parent_id == demand_id:
                 device.to_free()
