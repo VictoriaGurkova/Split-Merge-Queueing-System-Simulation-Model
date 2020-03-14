@@ -6,12 +6,13 @@ from Wrapper_for_Devices import Wrapper_for_Devices
 
 
 class SplitMerge:
-    def __init__(self, Lambda, mu, amount_of_devices, list_of_amounts_fragments):
-        self.Lambda = Lambda
+    def __init__(self, la, mu, amount_of_devices, list_of_amounts_fragments):
+        self.Lambda = la
         self.current_time = 0
-        self.arrival_time = expovariate(Lambda)
+        self.arrival_time = expovariate(la)
         self.service_start_time = float('inf')
         self.leaving_time = float('inf')
+        # для статистики
         self.amount_of_served_demands = 0
         self.average_time_demands_in_network = 0
 
