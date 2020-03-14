@@ -10,14 +10,14 @@ class Wrapper_for_Devices:
         self.list_of_devices = [Device(self.mu) for _ in range(amount_of_devices)]
 
     # распределяет фрагменты по приборам, устанавливает соответствующее время обслуживания
-    def distribute_fragments(self, demand):
+    def distribute_fragments(self, demand, current_time):
         count = 0
         # раскидываем фрагменты по приборам
         for device in self.list_of_devices:
             # если колличесвто свободных приборов больше либо равно количеству фрагментов
             if device.is_free and count < demand.amount_of_fragments:
                 # занимаем прибор фрагментом
-                device.to_occupy(demand.list_of_fragments[count])
+                device.to_occupy(demand.list_of_fragments[count], current_time)
                 count += 1
 
     # возвращает количество свободных приборов
@@ -25,7 +25,7 @@ class Wrapper_for_Devices:
         return len([True for device in self.list_of_devices if device.is_free])
 
     # возвращает ближайшее время окончания обслуживания требования
-    def get_min_service_duration_for_demand(self):
+    def get_min_end_service_time_for_demand(self):
         lists_of_service_duration_fragments = self.get_lists_of_service_duration_fragments()
         # список длительностей обслуживания всех требований на приборах в данный момент
         max_service_duration_of_fragments = []
@@ -57,7 +57,7 @@ class Wrapper_for_Devices:
 
     def get_id_demand_with_min_service_duration(self):
         for device in self.list_of_devices:
-            if device.service_duration == self.get_min_service_duration_for_demand():
+            if device.service_duration == self.get_min_end_service_time_for_demand():
                 return device.fragment.parent_id
 
     def to_free_demand_fragments(self, demand_id):

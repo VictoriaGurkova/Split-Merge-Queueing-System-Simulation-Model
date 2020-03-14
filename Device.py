@@ -12,10 +12,10 @@ class Device:
         self.mu = mu
         self.service_duration = float('-inf')
 
-    def to_occupy(self, fragment):
+    def to_occupy(self, fragment, current_time):
         self.is_free = False
         self.fragment = fragment
-        self.service_duration = expovariate(self.mu)
+        self.service_duration = expovariate(self.mu) + current_time
 
     def to_free(self):
         self.is_free = True
