@@ -13,6 +13,7 @@ class SplitMerge:
         self.arrival_time = expovariate(la)
         self.service_start_time = float('inf')
         self.leaving_time = float('inf')
+        # для статистики
         self.amount_of_served_demands = 0
         self.amount_of_arrived_demands = 0
         self.average_response_time = 0
