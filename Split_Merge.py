@@ -23,7 +23,7 @@ class SplitMerge:
         self._wrapper = Wrapper_for_Devices(mu, amount_of_devices)
         self._list_of_queues = list([] for _ in range(len(list_amounts_of_fragments)))
 
-        logging.basicConfig(filename="split_merge.log", level=logging.DEBUG, filemode="w")
+        logging.basicConfig(filename="split_merge.log", level=logging.ERROR, filemode="w")
 
     def arrival_of_demand(self):
         demand_class_id = randint(0, len(self._list_amounts_of_fragments) - 1)
@@ -75,6 +75,7 @@ class SplitMerge:
     def main(self, max_time):
         while self._current_time < max_time:
             self._current_time = min(self._arrival_time, self._service_start_time, self._leaving_time)
+            print(f"{round(self._current_time, 2)}/{max_time}")
             logging.debug("Device's state: " + str(self._wrapper.get_id_demands_on_devices()))
             logging.debug(
                 "Device's state with min time: " + str(self._wrapper.get_lists_of_service_duration_fragments()))
