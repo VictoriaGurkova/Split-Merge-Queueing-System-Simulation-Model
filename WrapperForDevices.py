@@ -55,7 +55,7 @@ class Wrapper_for_Devices:
                 id_demands_on_devices.add(device.fragment.parent_id)
         return list(id_demands_on_devices)
 
-    def get_id_demand_with_min_service_duration(self):
+    def get_id_demand_with_min_end_service_time(self):
         for device in self.list_of_devices:
             if device.service_duration == self.get_min_end_service_time_for_demand():
                 return device.fragment.parent_id
