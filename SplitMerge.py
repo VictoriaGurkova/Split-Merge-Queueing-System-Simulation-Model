@@ -72,10 +72,29 @@ class SplitMerge:
         logging.debug("Demand leaving: ID - " + str(demand.id) + " . Class ID - " + str(demand.class_id) +
                       " . Current Time: " + str(self._current_time))
 
+
+    # лучше перенести в отдельный класс
+    def print_progress_bar(self, value):
+        PROGRESS_CHAR = '▓'
+        EMPTY_CHAR = '░'
+        MAX_VALUE = 100
+        line = PROGRESS_CHAR * value + EMPTY_CHAR * (MAX_VALUE - value)
+        print('\r' + line, end='')
+
     def main(self, max_time):
+        current_progress = 0
+
+        print('Progress: ')
+
         while self._current_time < max_time:
             self._current_time = min(self._arrival_time, self._service_start_time, self._leaving_time)
-            print(f"{round(self._current_time, 2)}/{max_time}")
+            delta_for_progress = int(100 * self._current_time / max_time) - current_progress
+            if delta_for_progress > 0:
+                current_progress += delta_for_progress
+                self.print_progress_bar(current_progress)
+
+            # print(f"{round(self._current_time, 2)}/{max_time}")
+
             logging.debug("Device's state: " + str(self._wrapper.get_id_demands_on_devices()))
             logging.debug(
                 "Device's state with min time: " + str(self._wrapper.get_lists_of_service_duration_fragments()))
@@ -89,6 +108,7 @@ class SplitMerge:
             if self._current_time == self._leaving_time:
                 self.leaving_demand()
                 continue
+        print()
         self._statistics.record(self._list_of_served_demands)
 
     def can_occupy(self, class_id):
