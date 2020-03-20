@@ -1,4 +1,4 @@
-from Split_Merge import SplitMerge
+from SplitMerge import SplitMerge
 from Statistics import Statistics
 
 if __name__ == '__main__':

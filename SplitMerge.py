@@ -4,7 +4,7 @@ import logging
 
 from Demand import Demand
 from Statistics import Statistics
-from Wrapper_for_Devices import Wrapper_for_Devices
+from WrapperForDevices import Wrapper_for_Devices
 
 
 class SplitMerge:
