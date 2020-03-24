@@ -8,8 +8,17 @@ class Statistics:
         self._list_of_responses = []  # время пребывания требований в системе
         self._list_time_in_queue = []  # время пребывания требований в очереди
         self._list_time_on_device = []  # время пребывания требований на приборе
+        self._list_for_classes = []
+
+    def _record_classes(self, list_of_demands: list):
+        for i in range(self._amount_of_classes):
+            self._list_for_classes.append([])
+            for demand in list_of_demands:
+                if demand.class_id == i:
+                    self._list_for_classes[i].append(demand.leaving_time - demand.arrival_time)
 
     def record(self, list_of_demands: list):
+        self._record_classes(list_of_demands)
         for demand in list_of_demands:
             self._list_of_responses.append(demand.leaving_time - demand.arrival_time)
             self._list_time_in_queue.append(demand.service_start_time - demand.arrival_time)
@@ -38,4 +47,17 @@ class Statistics:
         plt.ylabel("Длительность пребывания")
         plt.plot(self._list_time_on_device, "g")
         plt.show()
+
+        print()
+
+        for class_list in self._list_for_classes:
+            print(f"М.о. длительности пребывания требования {self._list_for_classes.index(class_list)} класса в сети:",
+                  mean(class_list))
+            plt.title(f"В сети ({self._list_for_classes.index(class_list)} класс требований)")
+            plt.xlabel("Количество требования")
+            plt.ylabel("Длительность пребывания")
+            plt.plot(class_list, "b")
+            plt.show()
+
+
 
