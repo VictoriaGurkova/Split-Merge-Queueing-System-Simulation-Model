@@ -2,7 +2,7 @@ from SplitMerge import SplitMerge
 from Statistics import Statistics
 
 if __name__ == '__main__':
-    simulation_time = 100000
+    simulation_time = 10000
     la = 0.5
     mu = 1
     M = 4
