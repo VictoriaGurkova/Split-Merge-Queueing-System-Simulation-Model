@@ -3,6 +3,7 @@ from random import expovariate, randint
 import logging
 
 from Demand import Demand
+from ProgressBar import ProgressBar
 from Statistics import Statistics
 from WrapperForDevices import Wrapper_for_Devices
 
@@ -72,28 +73,13 @@ class SplitMerge:
         logging.debug("Demand leaving: ID - " + str(demand.id) + " . Class ID - " + str(demand.class_id) +
                       " . Current Time: " + str(self._current_time))
 
+    def main(self, simulation_time):
+        bar = ProgressBar(0, 'Progress: ')
 
-    # лучше перенести в отдельный класс
-    def print_progress_bar(self, value):
-        PROGRESS_CHAR = '▓'
-        EMPTY_CHAR = '░'
-        MAX_VALUE = 100
-        line = PROGRESS_CHAR * value + EMPTY_CHAR * (MAX_VALUE - value)
-        print('\r' + line, end='')
-
-    def main(self, max_time):
-        current_progress = 0
-
-        print('Progress: ')
-
-        while self._current_time < max_time:
+        while self._current_time < simulation_time:
             self._current_time = min(self._arrival_time, self._service_start_time, self._leaving_time)
-            delta_for_progress = int(100 * self._current_time / max_time) - current_progress
-            if delta_for_progress > 0:
-                current_progress += delta_for_progress
-                self.print_progress_bar(current_progress)
 
-            # print(f"{round(self._current_time, 2)}/{max_time}")
+            bar.print_progress(self._current_time, simulation_time)
 
             logging.debug("Device's state: " + str(self._wrapper.get_id_demands_on_devices()))
             logging.debug(
