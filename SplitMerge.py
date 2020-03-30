@@ -60,6 +60,7 @@ class SplitMerge:
         for d in self._list_of_demands_in_network:
             if d.id == leaving_demand_id:
                 demand = d
+                self._list_of_demands_in_network.remove(demand)
                 break
         demand.leaving_time = self._current_time
         self._list_of_served_demands.append(demand)

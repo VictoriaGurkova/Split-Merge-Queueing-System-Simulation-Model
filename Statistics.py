@@ -1,63 +1,69 @@
-from statistics import mean
 import matplotlib.pyplot as plt
+from pprint import pprint
 
 
 class Statistics:
     def __init__(self, list_amounts_of_fragments: list):
         self._amount_of_classes = len(list_amounts_of_fragments)
-        self._list_of_responses = []  # время пребывания требований в системе
-        self._list_time_in_queue = []  # время пребывания требований в очереди
-        self._list_time_on_device = []  # время пребывания требований на приборе
-        self._list_for_classes = []
-
-    def _record_classes(self, list_of_demands: list):
-        for i in range(self._amount_of_classes):
-            self._list_for_classes.append([])
-            for demand in list_of_demands:
-                if demand.class_id == i:
-                    self._list_for_classes[i].append(demand.leaving_time - demand.arrival_time)
+        self._amount_of_demands = 0
+        self._list_of_responses = []
+        self._general_statistics = {
+            "amount_of_demands": 0,
+            "average_response_time": 0,
+            "average_time_in_queue": 0,
+            "average_time_on_device": 0
+        }
+        self._class_statistics = {
+            f"class_{i}": self._general_statistics.copy() for i in range(self._amount_of_classes)
+        }
 
     def record(self, list_of_demands: list):
-        self._record_classes(list_of_demands)
+        self._general_statistics["amount_of_demands"] = len(list_of_demands)
         for demand in list_of_demands:
             self._list_of_responses.append(demand.leaving_time - demand.arrival_time)
-            self._list_time_in_queue.append(demand.service_start_time - demand.arrival_time)
-            self._list_time_on_device.append(demand.leaving_time - demand.service_start_time)
+            self._general_statistics["average_response_time"] += demand.leaving_time - demand.arrival_time
+            self._general_statistics["average_time_in_queue"] += demand.service_start_time - demand.arrival_time
+            self._general_statistics["average_time_on_device"] += demand.leaving_time - demand.service_start_time
+        self._general_statistics["average_response_time"] /= self._general_statistics["amount_of_demands"]
+        self._general_statistics["average_time_in_queue"] /= self._general_statistics["amount_of_demands"]
+        self._general_statistics["average_time_on_device"] /= self._general_statistics["amount_of_demands"]
+
+        for i in range(self._amount_of_classes):
+            for demand in list_of_demands:
+                if demand.class_id == i:
+                    self._class_statistics[f"class_{i}"]["amount_of_demands"] += 1
+                    self._class_statistics[f"class_{i}"]["average_response_time"] += \
+                        demand.leaving_time - demand.arrival_time
+                    self._class_statistics[f"class_{i}"]["average_time_in_queue"] += \
+                        demand.service_start_time - demand.arrival_time
+                    self._class_statistics[f"class_{i}"]["average_time_on_device"] += \
+                        demand.leaving_time - demand.service_start_time
+
+        for i in range(self._amount_of_classes):
+            self._class_statistics[f"class_{i}"]["average_response_time"] /= \
+                self._class_statistics[f"class_{i}"]["amount_of_demands"]
+            self._class_statistics[f"class_{i}"]["average_time_in_queue"] /= \
+                self._class_statistics[f"class_{i}"]["amount_of_demands"]
+            self._class_statistics[f"class_{i}"]["average_time_on_device"] /= \
+                self._class_statistics[f"class_{i}"]["amount_of_demands"]
 
     def show(self):
         print("Статистика для всех требований:")
-        print("М.о. длительности пребывания требования в сети:", mean(self._list_of_responses))
-        print("М.о. длительности пребывания требования в очереди:", mean(self._list_time_in_queue))
-        print("М.о. длительности пребывания требования на приборе", mean(self._list_time_on_device))
+        pprint(self._general_statistics)
+        print("Статистика по классам требований:")
+        pprint(self._class_statistics)
+        fig, (ax1, ax2) = plt.subplots(
+            nrows=1, ncols=2,
+            figsize=(20, 10)
+        )
+        ax1.plot(self._list_of_responses)
+        ax1.set_xlabel("Количество требований")
+        ax1.set_ylabel("Длительность пребывания в сети")
 
-        plt.title("В сети")
-        plt.xlabel("Количество требования")
-        plt.ylabel("Длительность пребывания")
-        plt.plot(self._list_of_responses, "b")
+        ax2.hist(self._list_of_responses)
+        ax2.set_xlabel("Длительность пребывания в сети")
+        ax2.set_ylabel("Количество требований")
+
         plt.show()
-
-        plt.title("В очередях")
-        plt.xlabel("Количество требования")
-        plt.ylabel("Длительность пребывания")
-        plt.plot(self._list_time_in_queue, "r")
-        plt.show()
-
-        plt.title("На приборах")
-        plt.xlabel("Количество требования")
-        plt.ylabel("Длительность пребывания")
-        plt.plot(self._list_time_on_device, "g")
-        plt.show()
-
-        print()
-
-        for class_list in self._list_for_classes:
-            print(f"М.о. длительности пребывания требования {self._list_for_classes.index(class_list)} класса в сети:",
-                  mean(class_list))
-            plt.title(f"В сети ({self._list_for_classes.index(class_list)} класс требований)")
-            plt.xlabel("Количество требования")
-            plt.ylabel("Длительность пребывания")
-            plt.plot(class_list, "b")
-            plt.show()
-
 
 
