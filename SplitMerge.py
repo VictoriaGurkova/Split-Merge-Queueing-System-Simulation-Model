@@ -1,5 +1,5 @@
 import time
-from random import expovariate, randint
+from random import expovariate, randint, random
 import logging
 
 from Demand import Demand
@@ -9,13 +9,29 @@ from WrapperForDevices import Wrapper_for_Devices
 
 
 class SplitMerge:
-    def __init__(self, la: float, mu: float, amount_of_devices: int, list_amounts_of_fragments: list,
+    def __init__(self, la1: float, la2: float,
+                 mu: float,
+                 amount_of_devices: int,
+                 list_amounts_of_fragments: list,
+                 capacity: list,
                  statistics: Statistics):
-        self._la = la
+        # два пуассоновских потока дадут суммарно пуассоновский поток
+        # интенсивности при это суммируются
+        # а требование будет иметь первый класс с веростностью la1/(la1 + la2) - эту вероятность _prob1 будем
+        # использовать далее в соответ методе
+
+        self._la1 = la1
+        self._la2 = la2
+        self._la = la1 + la2
+        self._prob1 = la1 / self._la
+
+        self._capacity = capacity
+
         self._current_time = 0
-        self._arrival_time = expovariate(la)
+        self._arrival_time = expovariate(self._la)
         self._service_start_time = float('inf')
         self._leaving_time = float('inf')
+
         self._statistics = statistics
 
         self._list_of_demands_in_network = []
@@ -27,28 +43,36 @@ class SplitMerge:
         logging.basicConfig(filename="split_merge.log", level=logging.ERROR, filemode="w")
 
     def arrival_of_demand(self):
-        demand_class_id = randint(0, len(self._list_amounts_of_fragments) - 1)
+        # если рандомное число оказалось меньше (первая часть отрезка), то это равносильно тому,
+        # что поступающее требование было первого класса
+        if random() < self._prob1:
+            demand_class_id = 0
+        else:
+            demand_class_id = 1
+
         demand = Demand(self._arrival_time, demand_class_id, self._list_amounts_of_fragments[demand_class_id])
-        self._service_start_time = self._current_time
-        self._list_of_queues[demand_class_id].append(demand)
+        if len(self._list_of_queues[demand_class_id]) < self._capacity[demand_class_id]:
+            self._service_start_time = self._current_time
+            self._list_of_queues[demand_class_id].append(demand)
+            logging.debug("Demand arrival: ID - " + str(demand.id) + " . Class ID - " + str(demand.class_id) +
+                          " . Current Time: " + str(self._current_time))
+        else:
+            logging.debug(
+                "Demand arrival (FULL QUEUE): ID - " + str(demand.id) + " . Class ID - " + str(demand.class_id) +
+                " . Current Time: " + str(self._current_time))
         self._arrival_time += expovariate(self._la)
 
-        logging.debug("Demand arrival: ID - " + str(demand.id) + " . Class ID - " + str(demand.class_id) +
-                      " . Current Time: " + str(self._current_time))
-
     def demand_service_start(self):
+        # начинаем забирать требования со всех очередей по порядку 1, 2, ...
         for class_id in range(len(self._list_amounts_of_fragments)):
-            while True:
-                if self.can_occupy(class_id) and self._list_of_queues[class_id]:
-                    demand = self._list_of_queues[class_id].pop(0)
-                    self._wrapper.distribute_fragments(demand, self._current_time)
-                    self._list_of_demands_in_network.append(demand)
-                    demand.service_start_time = self._current_time
+            while self.can_occupy(class_id) and self._list_of_queues[class_id]:
+                demand = self._list_of_queues[class_id].pop(0)
+                self._wrapper.distribute_fragments(demand, self._current_time)
+                self._list_of_demands_in_network.append(demand)
+                demand.service_start_time = self._current_time
+                logging.debug("Demand start service: ID - " + str(demand.id) + " . Class ID - " +
+                              str(demand.class_id) + " . Current Time: " + str(self._current_time))
 
-                    logging.debug("Demand start service: ID - " + str(demand.id) + " . Class ID - " +
-                                  str(demand.class_id) + " . Current Time: " + str(self._current_time))
-                else:
-                    break
         self._service_start_time = float('inf')
         if self._wrapper.get_id_demands_on_devices():
             self._leaving_time = self._wrapper.get_min_end_service_time_for_demand()
