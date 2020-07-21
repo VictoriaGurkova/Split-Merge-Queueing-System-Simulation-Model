@@ -1,11 +1,10 @@
-import time
-from random import expovariate, randint, random
 import logging
+from random import expovariate, random
 
 from Demand import Demand
 from ProgressBar import ProgressBar
 from Statistics import Statistics
-from WrapperForDevices import Wrapper_for_Devices
+from WrapperForDevices import WrapperForDevices
 
 
 class SplitMerge:
@@ -37,7 +36,7 @@ class SplitMerge:
         self._list_of_demands_in_network = []
         self._list_of_served_demands = []
         self._list_amounts_of_fragments = list_amounts_of_fragments
-        self._wrapper = Wrapper_for_Devices(mu, amount_of_devices)
+        self._wrapper = WrapperForDevices(mu, amount_of_devices)
         self._list_of_queues = list([] for _ in range(len(list_amounts_of_fragments)))
 
         logging.basicConfig(filename="split_merge.log", level=logging.ERROR, filemode="w")
@@ -98,7 +97,7 @@ class SplitMerge:
         logging.debug("Demand leaving: ID - " + str(demand.id) + " . Class ID - " + str(demand.class_id) +
                       " . Current Time: " + str(self._current_time))
 
-    def main(self, simulation_time):
+    def main(self, simulation_time: int):
         bar = ProgressBar(0, 'Progress: ')
 
         while self._current_time < simulation_time:
@@ -122,8 +121,10 @@ class SplitMerge:
         print()
         self._statistics.record(self._list_of_served_demands)
 
-    def can_occupy(self, class_id):
-        return self._wrapper.get_amount_of_free_devices() >= self._list_amounts_of_fragments[class_id]
+    def can_occupy(self, class_id: int):
+        return self._wrapper.get_amount_of_free_devices() >= \
+               self._list_amounts_of_fragments[class_id]
 
     def check_if_possible_put_demand_on_devices(self):
-        return len([True for class_id in range(len(self._list_amounts_of_fragments)) if self.can_occupy(class_id)])
+        return len([True for class_id in range(len(self._list_amounts_of_fragments))
+                    if self.can_occupy(class_id)])

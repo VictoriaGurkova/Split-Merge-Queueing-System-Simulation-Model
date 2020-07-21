@@ -52,18 +52,18 @@ class Statistics:
         pprint(self._general_statistics)
         print("Статистика по классам требований:")
         pprint(self._class_statistics)
-        fig, (ax1, ax2) = plt.subplots(
-            nrows=1, ncols=2,
-            figsize=(20, 10)
-        )
-        ax1.plot(self._list_of_responses)
-        ax1.set_xlabel("Количество требований")
-        ax1.set_ylabel("Длительность пребывания в сети")
-
-        ax2.hist(self._list_of_responses)
-        ax2.set_xlabel("Длительность пребывания в сети")
-        ax2.set_ylabel("Количество требований")
-
-        plt.show()
+        # fig, (ax1, ax2) = plt.subplots(
+        #     nrows=1, ncols=2,
+        #     figsize=(20, 10)
+        # )
+        # ax1.plot(self._list_of_responses)
+        # ax1.set_xlabel("Количество требований")
+        # ax1.set_ylabel("Длительность пребывания в сети")
+        #
+        # ax2.hist(self._list_of_responses)
+        # ax2.set_xlabel("Длительность пребывания в сети")
+        # ax2.set_ylabel("Количество требований")
+        #
+        # plt.show()
 
 

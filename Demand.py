@@ -4,7 +4,7 @@ from Fragment import Fragment
 class Demand:
     count = 0
 
-    def __init__(self, arrival_time, class_id, amount_of_fragments):
+    def __init__(self, arrival_time: float, class_id: int, amount_of_fragments: int):
         Demand.count += 1
         self.id = Demand.count
         self.arrival_time = arrival_time

@@ -1,16 +1,17 @@
+from Demand import Demand
 from Device import Device
 
 
 # класс-обертка для приборов
 # содержит некоторые вспомогательные методы
-class Wrapper_for_Devices:
-    def __init__(self, mu, amount_of_devices):
+class WrapperForDevices:
+    def __init__(self, mu: float, amount_of_devices: int):
         self.mu = mu
         # генерируется список amount_of_devices приборов с интенсивностями mu
         self.list_of_devices = [Device(self.mu) for _ in range(amount_of_devices)]
 
     # распределяет фрагменты по приборам, устанавливает соответствующее время обслуживания
-    def distribute_fragments(self, demand, current_time):
+    def distribute_fragments(self, demand: Demand, current_time: float):
         count = 0
         # раскидываем фрагменты по приборам
         for device in self.list_of_devices:
@@ -60,7 +61,7 @@ class Wrapper_for_Devices:
             if device.service_duration == self.get_min_end_service_time_for_demand():
                 return device.fragment.parent_id
 
-    def to_free_demand_fragments(self, demand_id):
+    def to_free_demand_fragments(self, demand_id: int):
         for device in self.list_of_devices:
             if not device.is_free and device.fragment.parent_id == demand_id:
                 device.to_free()
