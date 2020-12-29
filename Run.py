@@ -1,20 +1,22 @@
 from SplitMerge import SplitMerge
 from Statistics import Statistics
 
+
+# this code initializes network parameters, starts statistics and performs simulation split-merge network
 if __name__ == '__main__':
     simulation_time = 100000
-    la1 = 0.5
-    la2 = 1
+    lambda1 = 0.5
+    lambda2 = 1
     mu = 3
     M = 4
-    list_of_fragments = [3, 2]
-    capacity = [10, 30]
+    fragments_of_demands = [3, 2]
+    dimension_of_queues = [10, 30]
 
-    statistics = Statistics(list_of_fragments)
-    sp = SplitMerge(la1, la2,
-                    mu, M,
-                    list_of_fragments, capacity,
-                    statistics)
+    statistics = Statistics(fragments_of_demands)
+    network_model = SplitMerge(lambda1, lambda2,
+                               mu, M,
+                               fragments_of_demands, dimension_of_queues,
+                               statistics)
 
-    sp.main(simulation_time)
+    network_model.main(simulation_time)
     statistics.show()

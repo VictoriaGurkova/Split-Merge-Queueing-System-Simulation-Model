@@ -21,4 +21,4 @@ class Demand:
         self.class_id = class_id
         self.amount_of_fragments = amount_of_fragments
         Fragment.__COUNT = 0
-        self.list_of_fragments = [Fragment(self.id) for _ in range(amount_of_fragments)]
+        self.fragments = [Fragment(self.id) for _ in range(amount_of_fragments)]

@@ -65,5 +65,3 @@ class Statistics:
         # ax2.set_ylabel("Количество требований")
         #
         # plt.show()
-
-

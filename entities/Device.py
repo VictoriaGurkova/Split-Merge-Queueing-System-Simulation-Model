@@ -31,7 +31,7 @@ class Device:
         self.service_duration = current_time + expovariate(self.mu)
 
     def to_free(self):
-        """Freeing the device from the fragment.(Completing a Fragment Service)"""
+        """Freeing the device from the fragment. (Completing a Fragment Service)"""
 
         self.is_free = True
         self.fragment = None
