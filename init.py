@@ -9,13 +9,13 @@ if __name__ == '__main__':
     lambda2 = 1
     mu = 3
     M = 4
-    fragments_of_demands = [3, 2]
-    dimension_of_queues = [10, 30]
+    demands_fragments = [3, 2]
+    queues_capacity = [10, 30]
 
-    statistics = Statistics(fragments_of_demands)
+    statistics = Statistics(demands_fragments)
     network_model = SplitMergeSystem(lambda1, lambda2,
                                      mu, M,
-                                     fragments_of_demands, dimension_of_queues,
+                                     demands_fragments, queues_capacity,
                                      statistics)
 
     network_model.main(simulation_time)
