@@ -1,13 +1,9 @@
-from entities.Demand import Demand
-from entities.Device import Device
+from entities.demand import Demand
+from entities.device import Device
 
 
-class WrapperForDevices:
-    """The wrapper class for grouping servicing devices.
-
-    It contains auxiliary functions for working with devices.
-
-    """
+class DevicesWrapper:
+    """This class contains auxiliary functions for working with devices."""
 
     def __init__(self, mu: float, amount_of_devices: int):
         """

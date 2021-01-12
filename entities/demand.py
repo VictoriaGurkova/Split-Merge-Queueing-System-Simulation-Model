@@ -1,4 +1,4 @@
-from entities.Fragment import Fragment
+from entities.fragment import Fragment
 
 
 class Demand:

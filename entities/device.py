@@ -1,6 +1,6 @@
 from random import expovariate
 
-from entities.Fragment import Fragment
+from entities.fragment import Fragment
 
 
 class Device:

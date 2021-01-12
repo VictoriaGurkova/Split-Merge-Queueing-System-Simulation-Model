@@ -1,13 +1,13 @@
 import logging
 from random import expovariate, random
 
-from ProgressBar import ProgressBar
-from Statistics import Statistics
-from entities.WrapperForDevices import WrapperForDevices
-from entities.Demand import Demand
+from progress_bar import ProgressBar
+from statistics import Statistics
+from entities.wrapper import DevicesWrapper
+from entities.demand import Demand
 
 
-class SplitMerge:
+class SplitMergeSystem:
     """Class describing the simulation model split-merge simulation model of a queuing system
 
     Two classes of demand, two queues for demand.
@@ -18,19 +18,19 @@ class SplitMerge:
 
     def __init__(self, lambda1: float, lambda2: float,
                  mu: float,
-                 amount_of_devices: int,
-                 amounts_of_fragments: list,
-                 dimension_of_queues: list,
+                 devices_amount: int,
+                 fragments_amount: list,
+                 queues_capacity: list,
                  statistics: Statistics):
         """
 
         :param lambda1: intensity of the incoming flow of first class demand
         :param lambda2: intensity of the incoming flow of second class demand
         :param mu: service rate of a demand by one device
-        :param amount_of_devices: number of devices in the system
-        :param amounts_of_fragments: view [a, b], where a is the number of fragments of the first class demand
+        :param devices_amount: number of devices in the system
+        :param fragments_amount: view [a, b], where a is the number of fragments of the first class demand
         and b - second demand
-        :param dimension_of_queues: queue dimensions, similarly as list_amounts_of_fragments
+        :param queues_capacity: queue dimensions, similarly as list_amounts_of_fragments
         :param statistics: variable for counting and calculating statistics
         """
         self._lambda1 = lambda1
@@ -38,7 +38,7 @@ class SplitMerge:
         self._lambda = lambda1 + lambda2
         self._prob1 = lambda1 / self._lambda
 
-        self._dimension_of_queues = dimension_of_queues
+        self._dimension_of_queues = queues_capacity
 
         self._current_time = 0
         self._arrival_time = expovariate(self._lambda)
@@ -49,9 +49,9 @@ class SplitMerge:
 
         self._demands_in_network = []
         self._served_demands = []
-        self._amounts_of_fragments = amounts_of_fragments
-        self._wrapper = WrapperForDevices(mu, amount_of_devices)
-        self._queues = list([] for _ in range(len(amounts_of_fragments)))
+        self._amounts_of_fragments = fragments_amount
+        self._wrapper = DevicesWrapper(mu, devices_amount)
+        self._queues = list([] for _ in range(len(fragments_amount)))
 
         logging.basicConfig(filename="logging.log", level=logging.ERROR, filemode="w")
 
