@@ -3,9 +3,9 @@ from entities.Device import Device
 
 
 class WrapperForDevices:
-    """Wrapper class for grouping service devices.
+    """The wrapper class for grouping servicing devices.
 
-    Contains auxiliary functionality for working with devices
+    It contains auxiliary functions for working with devices.
 
     """
 
@@ -13,13 +13,13 @@ class WrapperForDevices:
         """
 
         :param mu: demand service rate
-        :param amount_of_devices: number of service devices
+        :param amount_of_devices: number of servicing devices
         """
         self.mu = mu
         self.devices = [Device(self.mu) for _ in range(amount_of_devices)]
 
     def distribute_fragments(self, demand: Demand, current_time: float):
-        """Distributes fragments of a demand by devices.
+        """It distributes a demand fragments by devices.
 
         :param demand: demand, fragments of which must be assigned to devices
         :param current_time: current simulation time of the model
@@ -27,7 +27,7 @@ class WrapperForDevices:
         count = 0
         # scatter fragments over the devices
         for device in self.devices:
-            if device.is_free and count < demand.amount_of_fragments:
+            if device.is_free and count < demand.fragments_amount:
                 device.to_occupy(demand.fragments[count], current_time)
                 count += 1
 

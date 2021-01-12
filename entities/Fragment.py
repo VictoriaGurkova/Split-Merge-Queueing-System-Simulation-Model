@@ -1,5 +1,5 @@
 class Fragment:
-    """Class describing the essence of the fragments that make up the demands in a split-merge system."""
+    """The class describes the essence of the fragments that make up the demands entered the system."""
 
     __COUNT = 0
 
