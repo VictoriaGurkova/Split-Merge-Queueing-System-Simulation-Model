@@ -1,6 +1,7 @@
 import logging
-from random import expovariate, random
+from random import expovariate as exp, random
 
+from network_params import Params
 from progress_bar import ProgressBar
 from statistics import Statistics
 from entities.wrapper import DevicesWrapper
@@ -16,158 +17,158 @@ class SplitMergeSystem:
 
     """
 
-    def __init__(self, lambda1: float, lambda2: float,
-                 mu: float,
-                 devices_amount: int,
-                 fragments_amount: list,
-                 queues_capacity: list,
+    def __init__(self,
+                 params: Params,
                  statistics: Statistics):
         """
 
-        :param lambda1: intensity of the incoming flow of first class demand
-        :param lambda2: intensity of the incoming flow of second class demand
-        :param mu: service rate of a demand by one device
-        :param devices_amount: number of devices in the system
-        :param fragments_amount: view [a, b], where a is the number of fragments of the first class demand
-        and b - second demand
-        :param queues_capacity: queue dimensions, similarly as list_amounts_of_fragments
+        :param params: network configuration parameters
         :param statistics: variable for counting and calculating statistics
+
         """
-        self._lambda1 = lambda1
-        self._lambda2 = lambda2
-        self._lambda = lambda1 + lambda2
-        self._prob1 = lambda1 / self._lambda
-
-        self._dimension_of_queues = queues_capacity
-
-        self._current_time = 0
-        self._arrival_time = expovariate(self._lambda)
-        self._service_start_time = float('inf')
-        self._leaving_time = float('inf')
-
-        self._statistics = statistics
-
-        self._demands_in_network = []
-        self._served_demands = []
-        self._amounts_of_fragments = fragments_amount
-        self._wrapper = DevicesWrapper(mu, devices_amount)
-        self._queues = list([] for _ in range(len(fragments_amount)))
 
         logging.basicConfig(filename="logging.log", level=logging.ERROR, filemode="w")
+
+        self.params = params
+        self.statistics = statistics
+
+        self.lambdas = {
+            "lambda1": params.lambda1,
+            "lambda2": params.lambda2,
+            "lambda": params.lambda1 + params.lambda2
+        }
+        self.prob1 = self.lambdas["lambda1"] / self.lambdas["lambda"]
+
+        self.times = {
+            "current": 0,
+            "arrival": exp(self.lambdas["lambda"]),
+            "service_start": float('inf'),
+            "leaving": float('inf')
+        }
+
+        # network configuration - number of queues and devices
+        self.config = {
+            "queues": list([] for _ in range(len(params.fragments_amounts))),  # view: [[], []]
+            "devices": DevicesWrapper(params.mu, params.devices_amount)
+        }
+
+        # data for calculating statistics
+        self.stat = {
+            "demands_in_network": [],
+            "served_demands": []
+        }
 
     def arrival_of_demand(self):
         """Event describing the arrival of a demand to the system"""
 
-        class_id = self.get_id_arrived_demand()
-        demand = Demand(self._arrival_time, class_id, self._amounts_of_fragments[class_id])
+        class_id = self.define_arriving_demand_class()
+        demand = Demand(self.times["arrival"], class_id, self.params.fragments_amounts[class_id])
 
-        if len(self._queues[class_id]) < self._dimension_of_queues[class_id]:
-            self._service_start_time = self._current_time
-            self._queues[class_id].append(demand)
+        if len(self.config["queues"][class_id]) < self.params.queues_capacities[class_id]:
+            self.times["service_start"] = self.times["current"]
+            self.config["queues"][class_id].append(demand)
 
             logging.debug("Demand arrival: ID - " + str(demand.id) + ". Class ID - " + str(demand.class_id) +
-                          ". Current Time: " + str(self._current_time))
+                          ". Current Time: " + str(self.times["current"]))
         else:
             logging.debug(
                 "Demand arrival (FULL QUEUE): ID - " + str(demand.id) + ". Class ID - " + str(demand.class_id) +
-                ". Current Time: " + str(self._current_time))
-        # set arrival time of the next demand
-        self._arrival_time += expovariate(self._lambda)
+                ". Current Time: " + str(self.times["current"]))
 
-    def get_id_arrived_demand(self):
-        """Definition of the demand class"""
-        return 0 if random() < self._prob1 else 1
+        self.times["arrival"] += exp(self.lambdas["lambda"])
 
     def demand_service_start(self):
         """Event describing the start of servicing a demand"""
 
         # take demand from all queues in direct order
-        for class_id in range(len(self._amounts_of_fragments)):
-            while self.can_occupy(class_id) and self._queues[class_id]:
-                demand = self._queues[class_id].pop(0)
-                # scattering fragments across systems
-                self._wrapper.distribute_fragments(demand, self._current_time)
-                self._demands_in_network.append(demand)
-                demand.service_start_time = self._current_time
+        for class_id in range(len(self.params.fragments_amounts)):
+            while self.can_occupy(class_id) and self.config["queues"][class_id]:
+                demand = self.config["queues"][class_id].pop(0)
+                self.config["devices"].distribute_fragments(demand, self.times["current"])
+                self.stat["demands_in_network"].append(demand)
+                demand.service_start_time = self.times["current"]
 
                 logging.debug("Demand start service: ID - " + str(demand.id) + ". Class ID - " +
-                              str(demand.class_id) + ". Current Time: " + str(self._current_time))
+                              str(demand.class_id) + ". Current Time: " + str(self.times["current"]))
 
-        self._service_start_time = float('inf')
+        self.times["service_start"] = float('inf')
 
         # take the near term of the end of servicing demands
-        if self._wrapper.get_id_demands_on_devices():
-            self._leaving_time = self._wrapper.get_min_end_service_time_for_demand()
+        if self.config["devices"].get_id_demands_on_devices():
+            self.times["leaving"] = self.config["devices"].get_min_end_service_time_for_demand()
 
     def leaving_demand(self):
         """Event describing a demand leaving the system"""
 
-        leaving_demand_id = self._wrapper.get_demand_id_with_min_end_service_time()
-        self._wrapper.to_free_demand_fragments(leaving_demand_id)
+        leaving_demand_id = self.config["devices"].get_demand_id_with_min_end_service_time()
+        self.config["devices"].to_free_demand_fragments(leaving_demand_id)
         demand = None
 
-        # free all devices with fragments of the given id
-        for d in self._demands_in_network:
+        for d in self.stat["demands_in_network"]:
             if d.id == leaving_demand_id:
                 demand = d
-                self._demands_in_network.remove(demand)
+                self.stat["demands_in_network"].remove(demand)
                 break
 
-        demand.leaving_time = self._current_time
-        self._served_demands.append(demand)
-        self.set_times()
+        demand.leaving_time = self.times["current"]
+        self.stat["served_demands"].append(demand)
+        self.set_events_times()
 
         logging.debug("Demand leaving: ID - " + str(demand.id) + ". Class ID - " + str(demand.class_id) +
-                      ". Current Time: " + str(self._current_time))
+                      ". Current Time: " + str(self.times["current"]))
 
-    def set_times(self):
+    def define_arriving_demand_class(self):
+        return 0 if random() < self.prob1 else 1
+
+    def set_events_times(self):
         if self.check_if_possible_put_demand_on_devices():
-            self._service_start_time = self._current_time
-        if not self._wrapper.get_id_demands_on_devices():
-            self._leaving_time = float('inf')
+            self.times["service_start"] = self.times["current"]
+        if not self.config["devices"].get_id_demands_on_devices():
+            self.times["leaving"] = float('inf')
         else:
-            self._leaving_time = self._wrapper.get_min_end_service_time_for_demand()
-
-    def main(self, simulation_time: int):
-        """
-
-        :param simulation_time: model simulation duration
-        """
-        bar = ProgressBar(0, 'Progress: ')
-
-        # process of simulating a split-merge system
-        while self._current_time <= simulation_time:
-            # take the time of the nearest events
-            self._current_time = min(self._arrival_time, self._service_start_time, self._leaving_time)
-
-            bar.print_progress(self._current_time, simulation_time)
-
-            logging.debug("Device's state: " + str(self._wrapper.get_id_demands_on_devices()))
-            logging.debug("Device's state with min time: " + str(self._wrapper.get_service_duration_fragments()))
-            logging.debug("Event times: = " + str([self._arrival_time, self._service_start_time, self._leaving_time]))
-
-            if self._current_time == self._arrival_time:
-                self.arrival_of_demand()
-                continue
-            if self._current_time == self._service_start_time:
-                self.demand_service_start()
-                continue
-            if self._current_time == self._leaving_time:
-                self.leaving_demand()
-                continue
-
-        print()
-        self._statistics.record(self._served_demands)
+            self.times["leaving"] = self.config["devices"].get_min_end_service_time_for_demand()
 
     def can_occupy(self, class_id: int):
         """Checking whether the demand of this class can take place on the devices
 
         :param class_id: demand class
         """
-        return self._wrapper.get_amount_of_free_devices() >= self._amounts_of_fragments[class_id]
+        return self.config["devices"].get_amount_of_free_devices() >= self.params.fragments_amounts[class_id]
 
     def check_if_possible_put_demand_on_devices(self):
         """Checking whether it is possible to place a demand on devices"""
 
-        return len([True for class_id in range(len(self._amounts_of_fragments))
+        return len([True for class_id in range(len(self.params.fragments_amounts))
                     if self.can_occupy(class_id)])
+
+    def imitation(self, simulation_time: int):
+        """
+
+        :param simulation_time: model simulation duration
+        """
+
+        bar = ProgressBar(0, 'Progress: ')
+
+        while self.times["current"] <= simulation_time:
+            self.times["current"] = min(self.times["arrival"], self.times["service_start"], self.times["leaving"])
+
+            bar.print_progress(self.times["current"], simulation_time)
+
+            logging.debug("Device's state: " + str(self.config["devices"].get_id_demands_on_devices()))
+            logging.debug("Device's state with min time: " +
+                          str(self.config["devices"].get_service_duration_fragments()))
+            logging.debug("Event times: = " +
+                          str([self.times["arrival"], self.times["service_start"], self.times["leaving"]]))
+
+            if self.times["current"] == self.times["arrival"]:
+                self.arrival_of_demand()
+                continue
+            if self.times["current"] == self.times["service_start"]:
+                self.demand_service_start()
+                continue
+            if self.times["current"] == self.times["leaving"]:
+                self.leaving_demand()
+                continue
+
+        print()
+        self.statistics.record(self.stat["served_demands"])
