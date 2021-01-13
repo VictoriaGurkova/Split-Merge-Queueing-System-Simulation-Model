@@ -33,4 +33,3 @@ def check_if_possible_put_demand_on_devices(config: dict, params: Params):
 
     return len([True for class_id in range(len(params.fragments_amounts))
                 if can_occupy(class_id, config, params)])
-

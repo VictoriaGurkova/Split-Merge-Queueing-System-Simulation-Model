@@ -1,12 +1,11 @@
-import logging
 from random import expovariate as exp
 
 from entities.demand import Demand
 from entities.wrapper import DevicesWrapper
-from network_params import Params
+from log import *
 from progress_bar import ProgressBar
 from statistics import Statistics
-import utils
+from utils import *
 
 
 class SplitMergeSystem:
@@ -27,8 +26,6 @@ class SplitMergeSystem:
         :param statistics: variable for counting and calculating statistics
 
         """
-
-        logging.basicConfig(filename="logging.log", level=logging.ERROR, filemode="w")
 
         self.params = params
         self.statistics = statistics
@@ -62,19 +59,15 @@ class SplitMergeSystem:
     def arrival_of_demand(self):
         """Event describing the arrival of a demand to the system"""
 
-        class_id = utils.define_arriving_demand_class(self.prob1)
+        class_id = define_arriving_demand_class(self.prob1)
         demand = Demand(self.times["arrival"], class_id, self.params.fragments_amounts[class_id])
 
         if len(self.config["queues"][class_id]) < self.params.queues_capacities[class_id]:
             self.times["service_start"] = self.times["current"]
             self.config["queues"][class_id].append(demand)
-
-            logging.debug("Demand arrival: ID - " + str(demand.id) + ". Class ID - " + str(demand.class_id) +
-                          ". Current Time: " + str(self.times["current"]))
+            arrival_log(demand, self.times["current"])
         else:
-            logging.debug(
-                "Demand arrival (FULL QUEUE): ID - " + str(demand.id) + ". Class ID - " + str(demand.class_id) +
-                ". Current Time: " + str(self.times["current"]))
+            full_queue_log(demand, self.times["current"])
 
         self.times["arrival"] += exp(self.lambdas["lambda"])
 
@@ -83,14 +76,12 @@ class SplitMergeSystem:
 
         # take demand from all queues in direct order
         for class_id in range(len(self.params.fragments_amounts)):
-            while utils.can_occupy(class_id, self.config, self.params) and self.config["queues"][class_id]:
+            while can_occupy(class_id, self.config, self.params) and self.config["queues"][class_id]:
                 demand = self.config["queues"][class_id].pop(0)
                 self.config["devices"].distribute_fragments(demand, self.times["current"])
                 self.stat["demands_in_network"].append(demand)
                 demand.service_start_time = self.times["current"]
-
-                logging.debug("Demand start service: ID - " + str(demand.id) + ". Class ID - " +
-                              str(demand.class_id) + ". Current Time: " + str(self.times["current"]))
+                service_start_log(demand, self.times["current"])
 
         self.times["service_start"] = float('inf')
 
@@ -113,10 +104,9 @@ class SplitMergeSystem:
 
         demand.leaving_time = self.times["current"]
         self.stat["served_demands"].append(demand)
-        utils.set_events_times(self.times, self.config, self.params)
+        set_events_times(self.times, self.config, self.params)
 
-        logging.debug("Demand leaving: ID - " + str(demand.id) + ". Class ID - " + str(demand.class_id) +
-                      ". Current Time: " + str(self.times["current"]))
+        leaving_log(demand, self.times["current"])
 
     def imitation(self, simulation_time: int):
         """
@@ -130,12 +120,7 @@ class SplitMergeSystem:
             self.times["current"] = min(self.times["arrival"], self.times["service_start"], self.times["leaving"])
 
             bar.print_progress(self.times["current"], simulation_time)
-
-            logging.debug("Device's state: " + str(self.config["devices"].get_id_demands_on_devices()))
-            logging.debug("Device's state with min time: " +
-                          str(self.config["devices"].get_service_duration_fragments()))
-            logging.debug("Event times: = " +
-                          str([self.times["arrival"], self.times["service_start"], self.times["leaving"]]))
+            network_state_log(self.times, self.config["devices"])
 
             if self.times["current"] == self.times["arrival"]:
                 self.arrival_of_demand()
@@ -147,5 +132,4 @@ class SplitMergeSystem:
                 self.leaving_demand()
                 continue
 
-        print()
         self.statistics.record(self.stat["served_demands"])

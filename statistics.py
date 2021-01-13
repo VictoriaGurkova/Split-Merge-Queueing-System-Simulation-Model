@@ -48,7 +48,7 @@ class Statistics:
                 self._class_statistics[f"class_{i}"]["amount_of_demands"]
 
     def show(self):
-        print("Статистика для всех требований:")
+        print("\nСтатистика для всех требований:")
         pprint(self._general_statistics)
         print("Статистика по классам требований:")
         pprint(self._class_statistics)
