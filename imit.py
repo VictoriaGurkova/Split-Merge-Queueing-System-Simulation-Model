@@ -1,4 +1,5 @@
 from network import SplitMergeSystem
+from network_params import Params
 from statistics import Statistics
 
 
@@ -8,15 +9,14 @@ if __name__ == '__main__':
     lambda1 = 0.5
     lambda2 = 1
     mu = 3
-    M = 4
-    demands_fragments = [3, 2]
-    queues_capacity = [10, 30]
+    devices_amount = 4
+    fragments_amounts = [3, 2]
+    queues_capacities = [10, 30]
 
-    statistics = Statistics(demands_fragments)
-    network_model = SplitMergeSystem(lambda1, lambda2,
-                                     mu, M,
-                                     demands_fragments, queues_capacity,
-                                     statistics)
+    network_params = Params(lambda1, lambda2, mu, devices_amount, fragments_amounts, queues_capacities)
+    statistics = Statistics(fragments_amounts)
 
-    network_model.main(simulation_time)
+    network_model = SplitMergeSystem(network_params, statistics)
+    network_model.imitation(simulation_time)
+
     statistics.show()
