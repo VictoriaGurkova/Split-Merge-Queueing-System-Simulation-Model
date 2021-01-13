@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from pprint import pprint
 
 
+# TODO: make clean
 class Statistics:
     def __init__(self, list_amounts_of_fragments: list):
         self._amount_of_classes = len(list_amounts_of_fragments)

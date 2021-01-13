@@ -16,6 +16,7 @@ def set_events_times(times: dict, config: dict, params: Params):
         times["leaving"] = config["devices"].get_min_end_service_time_for_demand()
 
 
+# TODO: replace in wrapper
 def can_occupy(class_id: int, config: dict, params: Params):
     """Checking whether the demand of this class can take place on the devices
 
