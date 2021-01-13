@@ -6,7 +6,7 @@ from statistics import Statistics
 # this code initializes network parameters, starts statistics and performs simulation split-merge network
 if __name__ == '__main__':
     simulation_time = 100000
-    lambda1 = 0.5
+    lambda1 = 1
     lambda2 = 1
     mu = 3
     devices_amount = 4
