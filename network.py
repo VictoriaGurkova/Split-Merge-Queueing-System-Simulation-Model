@@ -76,7 +76,7 @@ class SplitMergeSystem:
 
         # take demand from all queues in direct order
         for class_id in range(len(self.params.fragments_amounts)):
-            while can_occupy(class_id, self.config, self.params) and self.config["queues"][class_id]:
+            while self.config["devices"].can_occupy(class_id, self.params) and self.config["queues"][class_id]:
                 demand = self.config["queues"][class_id].pop(0)
                 self.config["devices"].distribute_fragments(demand, self.times["current"])
                 self.stat["demands_in_network"].append(demand)

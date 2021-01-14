@@ -1,5 +1,6 @@
 from entities.demand import Demand
 from entities.device import Device
+from network_params import Params
 
 
 class DevicesWrapper:
@@ -7,7 +8,6 @@ class DevicesWrapper:
 
     def __init__(self, mu: float, amount_of_devices: int):
         """
-
         :param mu: demand service rate
         :param amount_of_devices: number of servicing devices
         """
@@ -95,3 +95,17 @@ class DevicesWrapper:
         for device in self.devices:
             if not device.is_free and device.fragment.parent_id == demand_id:
                 device.to_free()
+
+    def can_occupy(self, class_id: int, params: Params):
+        """Checking whether the demand of this class can take place on the devices
+        
+        :param params: network configuration parameters
+        :param class_id: demand class
+        """
+        return self.get_amount_of_free_devices() >= params.fragments_amounts[class_id]
+
+    def check_if_possible_put_demand_on_devices(self, params: Params):
+        """Checking whether it is possible to place a demand on devices"""
+        return len([True for class_id in range(len(params.fragments_amounts))
+                    if self.can_occupy(class_id, params)])
+

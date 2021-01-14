@@ -4,7 +4,6 @@ class Params:
                  devices_amount: int, fragments_amounts: list,
                  queues_capacities: list):
         """
-
         :param lambda1: intensity of the incoming flow of first class demand
         :param lambda2: intensity of the incoming flow of second class demand
         :param mu: service rate of a demand by one device
@@ -13,7 +12,6 @@ class Params:
         and b - second demand
         :param queues_capacities: queue dimensions, similarly as list_amounts_of_fragments
         """
-
         self.lambda1 = lambda1
         self.lambda2 = lambda2
         self.mu = mu
