@@ -1,10 +1,10 @@
 from random import expovariate
 
-from entities.Fragment import Fragment
+from entities.fragment import Fragment
 
 
 class Device:
-    """Class describing the essence of a service device in a queuing network."""
+    """The class describes the servicing device essence in a queuing network."""
 
     __COUNT = 0
 
@@ -21,17 +21,17 @@ class Device:
         self.service_duration = float('-inf')
 
     def to_occupy(self, fragment: Fragment, current_time: float):
-        """A function that describes placing a fragment on the device for servicing.
+        """The function describes fragment placing on the servicing device.
 
         :param fragment: fragment of the demand placed on the device
-        :param current_time: current simulation time of the model
+        :param current_time: current simulation time
         """
         self.is_free = False
         self.fragment = fragment
         self.service_duration = current_time + expovariate(self.mu)
 
     def to_free(self):
-        """Freeing the device from the fragment.(Completing a Fragment Service)"""
+        """The function describes completing fragment servicing."""
 
         self.is_free = True
         self.fragment = None

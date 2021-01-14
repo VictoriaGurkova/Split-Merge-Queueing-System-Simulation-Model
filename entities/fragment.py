@@ -1,5 +1,5 @@
 class Fragment:
-    """Class describing the essence of the fragments that make up the demands in a split-merge system."""
+    """The class describes the essence of the fragments that make up the demands entered the system."""
 
     __COUNT = 0
 
@@ -13,4 +13,4 @@ class Fragment:
         self.parent_id = parent_id
 
     def __str__(self):
-        return 'Parent id: ' + str(self.parent_id) + ". Fragment id: " + str(self.id)
+        return 'Demand parent id: ' + str(self.parent_id) + ". Fragment id: " + str(self.id)

@@ -1,4 +1,4 @@
-from entities.Fragment import Fragment
+from entities.fragment import Fragment
 
 
 class Demand:
@@ -6,12 +6,12 @@ class Demand:
 
     __COUNT = 0
 
-    def __init__(self, arrival_time: float, class_id: int, amount_of_fragments: int):
+    def __init__(self, arrival_time: float, class_id: int, fragments_amount: int):
         """
 
         :param arrival_time: time of receipt of the demand in the system
         :param class_id: demand class
-        :param amount_of_fragments: the number of fragments that make up the demand
+        :param fragments_amount: the number of fragments that make up the demand
         """
         Demand.__COUNT += 1
         self.id = Demand.__COUNT
@@ -19,6 +19,6 @@ class Demand:
         self.service_start_time = None
         self.leaving_time = None
         self.class_id = class_id
-        self.amount_of_fragments = amount_of_fragments
+        self.fragments_amount = fragments_amount
         Fragment.__COUNT = 0
-        self.list_of_fragments = [Fragment(self.id) for _ in range(amount_of_fragments)]
+        self.fragments = [Fragment(self.id) for _ in range(fragments_amount)]
