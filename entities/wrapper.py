@@ -98,7 +98,7 @@ class DevicesWrapper:
 
     def can_occupy(self, class_id: int, params: Params):
         """Checking whether the demand of this class can take place on the devices
-        
+
         :param params: network configuration parameters
         :param class_id: demand class
         """
