@@ -2,7 +2,7 @@ from random import expovariate as exp
 
 from entities.demand import Demand
 from entities.wrapper import DevicesWrapper
-from log import *
+from logs import *
 from progress_bar import ProgressBar
 from statistics import Statistics
 from utils import *
