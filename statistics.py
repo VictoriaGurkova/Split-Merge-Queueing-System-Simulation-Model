@@ -2,58 +2,44 @@ import matplotlib.pyplot as plt
 from pprint import pprint
 
 
-# TODO: make clean
 class Statistics:
 
     def __init__(self, fragments_amounts: list):
         self.classes_amount = len(fragments_amounts)
-        self.demands_amount = 0
         self.responses = []
-        self.general_stat = {
+
+        self.statistics = {
             "demands_amount": 0,
-            "average_response_time": 0,
-            "average_time_in_queue": 0,
-            "average_time_on_device": 0
-        }
-        self.class_statistics = {
-            f"class_{i}": self.general_stat.copy() for i in range(self.classes_amount)
+            "avg_response_time": 0,
+            "avg_time_in_queue": 0,
+            "avg_time_on_device": 0
         }
 
-    def record(self, demands: list):
-        self.general_stat["demands_amount"] = len(demands)
+        self.class_statistics = {
+            f"class_{id}": ClassStatistics(id) for id in range(self.classes_amount)
+        }
+
+    def calculate_stat(self, demands: list):
+        self.calculate_general_stat(demands)
+        for class_stat in self.class_statistics.values():
+            class_stat.calculate_class_stat(demands)
+
+    def calculate_general_stat(self, demands):
+        self.statistics["demands_amount"] = len(demands)
+        calculate(demands, self.statistics)
+
         for demand in demands:
             self.responses.append(demand.leaving_time - demand.arrival_time)
-            self.general_stat["average_response_time"] += demand.leaving_time - demand.arrival_time
-            self.general_stat["average_time_in_queue"] += demand.service_start_time - demand.arrival_time
-            self.general_stat["average_time_on_device"] += demand.leaving_time - demand.service_start_time
-        self.general_stat["average_response_time"] /= self.general_stat["demands_amount"]
-        self.general_stat["average_time_in_queue"] /= self.general_stat["demands_amount"]
-        self.general_stat["average_time_on_device"] /= self.general_stat["demands_amount"]
-
-        for i in range(self.classes_amount):
-            for demand in demands:
-                if demand.class_id == i:
-                    self.class_statistics[f"class_{i}"]["demands_amount"] += 1
-                    self.class_statistics[f"class_{i}"]["average_response_time"] += \
-                        demand.leaving_time - demand.arrival_time
-                    self.class_statistics[f"class_{i}"]["average_time_in_queue"] += \
-                        demand.service_start_time - demand.arrival_time
-                    self.class_statistics[f"class_{i}"]["average_time_on_device"] += \
-                        demand.leaving_time - demand.service_start_time
-
-        for i in range(self.classes_amount):
-            self.class_statistics[f"class_{i}"]["average_response_time"] /= \
-                self.class_statistics[f"class_{i}"]["demands_amount"]
-            self.class_statistics[f"class_{i}"]["average_time_in_queue"] /= \
-                self.class_statistics[f"class_{i}"]["demands_amount"]
-            self.class_statistics[f"class_{i}"]["average_time_on_device"] /= \
-                self.class_statistics[f"class_{i}"]["demands_amount"]
 
     def show(self):
         print("\nСтатистика для всех требований:")
-        pprint(self.general_stat)
+        pprint(self.statistics)
+
         print("Статистика по классам требований:")
-        pprint(self.class_statistics)
+        for class_stat in self.class_statistics.values():
+            class_stat.show()
+
+    def draw_plot(self):
         fig, (ax1, ax2) = plt.subplots(
             nrows=1, ncols=2,
             figsize=(20, 10)
@@ -71,11 +57,31 @@ class Statistics:
 
 class ClassStatistics:
 
-    def __init__(self):
-        pass
+    def __init__(self, class_id: int):
+        self.class_id = class_id
+        self.demands = None
+        self.statistics = {
+            "demands_amount": 0,
+            "avg_response_time": 0,
+            "avg_time_in_queue": 0,
+            "avg_time_on_device": 0
+        }
 
-    def record(self, demands):
-        pass
+    def calculate_class_stat(self, demands: list):
+        self.demands = [demand for demand in demands if demand.class_id == self.class_id]
+        self.statistics["demands_amount"] = len(self.demands)
+        calculate(self.demands, self.statistics)
 
     def show(self):
-        pass
+        print("class id:", self.class_id)
+        pprint(self.statistics)
+
+
+def calculate(demands, statistics):
+    for demand in demands:
+        statistics["avg_response_time"] += demand.leaving_time - demand.arrival_time
+        statistics["avg_time_in_queue"] += demand.service_start_time - demand.arrival_time
+        statistics["avg_time_on_device"] += demand.leaving_time - demand.service_start_time
+    statistics["avg_response_time"] /= statistics["demands_amount"]
+    statistics["avg_time_in_queue"] /= statistics["demands_amount"]
+    statistics["avg_time_on_device"] /= statistics["demands_amount"]

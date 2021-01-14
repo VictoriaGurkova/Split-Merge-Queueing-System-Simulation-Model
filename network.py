@@ -132,4 +132,4 @@ class SplitMergeSystem:
                 self.leaving_demand()
                 continue
 
-        self.statistics.record(self.stat["served_demands"])
+        self.statistics.calculate_stat(self.stat["served_demands"])

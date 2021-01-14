@@ -14,3 +14,4 @@ if __name__ == '__main__':
     model.imitation(simulation_time)
 
     statistics.show()
+    # statistics.draw_plot()
