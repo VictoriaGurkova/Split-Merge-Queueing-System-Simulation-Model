@@ -65,9 +65,9 @@ class SplitMergeSystem:
         if len(self.config["queues"][class_id]) < self.params.queues_capacities[class_id]:
             self.times["service_start"] = self.times["current"]
             self.config["queues"][class_id].append(demand)
-            arrival_log(demand, self.times["current"])
+            log_arrival(demand, self.times["current"])
         else:
-            full_queue_log(demand, self.times["current"])
+            log_full_queue(demand, self.times["current"])
 
         self.times["arrival"] += exp(self.lambdas["lambda"])
 
@@ -81,7 +81,7 @@ class SplitMergeSystem:
                 self.config["devices"].distribute_fragments(demand, self.times["current"])
                 self.stat["demands_in_network"].append(demand)
                 demand.service_start_time = self.times["current"]
-                service_start_log(demand, self.times["current"])
+                log_service_start(demand, self.times["current"])
 
         self.times["service_start"] = float('inf')
 
@@ -106,7 +106,7 @@ class SplitMergeSystem:
         self.stat["served_demands"].append(demand)
         set_events_times(self.times, self.config, self.params)
 
-        leaving_log(demand, self.times["current"])
+        log_leaving(demand, self.times["current"])
 
     def imitation(self, simulation_time: int):
         """
@@ -120,7 +120,7 @@ class SplitMergeSystem:
             self.times["current"] = min(self.times["arrival"], self.times["service_start"], self.times["leaving"])
 
             bar.print_progress(self.times["current"], simulation_time)
-            network_state_log(self.times, self.config["devices"])
+            log_network_state(self.times, self.config["devices"])
 
             if self.times["current"] == self.times["arrival"]:
                 self.arrival_of_demand()
