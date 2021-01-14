@@ -1,18 +1,21 @@
 class Params:
 
-    def __init__(self, lambda1: float, lambda2: float, mu: float,
-                 devices_amount: int, fragments_amounts: list,
-                 queues_capacities: list):
+    def __init__(self, lambda1=.5, lambda2=1, mu=3,
+                 devices_amount=4, fragments_amounts=None,
+                 queues_capacities=None):
         """
-
-        :param lambda1: intensity of the incoming flow of first class demand
-        :param lambda2: intensity of the incoming flow of second class demand
-        :param mu: service rate of a demand by one device
-        :param devices_amount: number of devices in the system
+        :param lambda1: intensity of the incoming flow of first class demand, default value = 0,5
+        :param lambda2: intensity of the incoming flow of second class demand, default value = 1
+        :param mu: service rate of a demand by one device, default value = 3
+        :param devices_amount: number of devices in the system, default value = 4
         :param fragments_amounts: view [a, b], where a is the number of fragments of the first class demand
-        and b - second demand
-        :param queues_capacities: queue dimensions, similarly as list_amounts_of_fragments
+        a and b - second demand, default value = [a=3, b=2]
+        :param queues_capacities: queue dimensions, similarly as list_amounts_of_fragments, default value = [10, 30]
         """
+        if fragments_amounts is None:
+            fragments_amounts = [3, 2]
+        if queues_capacities is None:
+            queues_capacities = [10, 30]
 
         self.lambda1 = lambda1
         self.lambda2 = lambda2
