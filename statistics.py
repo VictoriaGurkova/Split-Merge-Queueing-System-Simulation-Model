@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 from pprint import pprint
 
 
-# TODO: make clean
 class Statistics:
 
     def __init__(self, fragments_amounts: list):
