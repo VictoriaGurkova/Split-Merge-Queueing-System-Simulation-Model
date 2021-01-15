@@ -1,4 +1,5 @@
 class ProgressBar:
+
     __PROGRESS_CHAR = '▓'
     __EMPTY_CHAR = '░'
     __MAX_VALUE = 100
