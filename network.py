@@ -33,7 +33,7 @@ class SplitMergeSystem:
         self.lambdas = {
             "lambda1": params.lambda1,
             "lambda2": params.lambda2,
-            "lambda": params.lambda1 + params.lambda2
+            "lambda": params.get_lambda()
         }
         self.prob1 = self.lambdas["lambda1"] / self.lambdas["lambda"]
 

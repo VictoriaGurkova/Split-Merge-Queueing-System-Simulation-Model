@@ -23,3 +23,6 @@ class Params:
         self.devices_amount = devices_amount
         self.fragments_amounts = fragments_amounts
         self.queues_capacities = queues_capacities
+
+    def get_lambda(self):
+        return self.lambda1 + self.lambda2
