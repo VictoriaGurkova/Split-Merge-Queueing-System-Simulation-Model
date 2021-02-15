@@ -1,3 +1,4 @@
+# TODO: сделать общий интерфейс для бара
 class ProgressBar:
 
     __PROGRESS_CHAR = '▓'

@@ -7,14 +7,14 @@ class Statistics:
     def __init__(self, fragments_amounts: list):
         self.classes_amount = len(fragments_amounts)
         self.responses = []
-
+        # TODO: нет, никаких словарей, дата-класс
         self.statistics = {
             "demands_amount": 0,
             "avg_response_time": 0,
             "avg_time_in_queue": 0,
             "avg_time_on_device": 0
         }
-
+        # TODO: тоже самое, исправить, пофиксить, переписать
         self.class_statistics = {
             f"class_{id}": ClassStatistics(id) for id in range(self.classes_amount)
         }
@@ -31,6 +31,7 @@ class Statistics:
         for demand in demands:
             self.responses.append(demand.leaving_time - demand.arrival_time)
 
+    # TODO: __str__
     def show(self):
         print("\nСтатистика для всех требований:")
         pprint(self.statistics)
@@ -60,6 +61,7 @@ class ClassStatistics:
     def __init__(self, class_id: int):
         self.class_id = class_id
         self.demands = None
+        # TODO: нет словарям, дата-класс
         self.statistics = {
             "demands_amount": 0,
             "avg_response_time": 0,
@@ -77,6 +79,7 @@ class ClassStatistics:
         pprint(self.statistics)
 
 
+# TODO: переписать с учетом класса вместо словаря
 def calculate(demands, statistics):
     for demand in demands:
         statistics["avg_response_time"] += demand.leaving_time - demand.arrival_time

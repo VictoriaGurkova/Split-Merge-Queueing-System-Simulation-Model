@@ -1,5 +1,6 @@
 from random import expovariate as exp
 
+# TODO: убрать *
 from entities.demand import Demand
 from entities.wrapper import DevicesWrapper
 from logs import *
@@ -28,28 +29,29 @@ class SplitMergeSystem:
         """
 
         self.params = params
+        # TODO: создавать, а не передавать
         self.statistics = statistics
-
+        # TODO: зачем? если это все есть в params?
         self.lambdas = {
             "lambda1": params.lambda1,
             "lambda2": params.lambda2,
             "lambda": params.get_lambda()
         }
         self.prob1 = self.lambdas["lambda1"] / self.lambdas["lambda"]
-
+        # TODO: создать дата-класс для времен
         self.times = {
             "current": 0,
             "arrival": exp(self.lambdas["lambda"]),
             "service_start": float('inf'),
             "leaving": float('inf')
         }
-
+        # TODO: создать дата-класс для конфигурации сети
         # network configuration - number of queues and devices
         self.config = {
             "queues": list([] for _ in range(len(params.fragments_amounts))),  # view: [[], []]
             "devices": DevicesWrapper(params.mu, params.devices_amount)
         }
-
+        # TODO: либо класс, либо отдельные переменные
         # data for calculating statistics
         self.stat = {
             "demands_in_network": [],
@@ -108,12 +110,13 @@ class SplitMergeSystem:
 
         log_leaving(demand, self.times["current"])
 
+    # TODO: переименовать
     def imitation(self, simulation_time: int):
         """
 
         :param simulation_time: model simulation duration
         """
-
+        # TODO: прогресс-бар вынеси в парметры
         bar = ProgressBar(0, 'Progress: ')
 
         while self.times["current"] <= simulation_time:
@@ -131,5 +134,5 @@ class SplitMergeSystem:
             if self.times["current"] == self.times["leaving"]:
                 self.leaving_demand()
                 continue
-
+        # TODO: возвращать объект статистики
         self.statistics.calculate_stat(self.stat["served_demands"])

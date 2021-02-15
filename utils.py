@@ -1,3 +1,4 @@
+# TODO: расформировать данный модуль
 from random import random
 
 from network_params import Params

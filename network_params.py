@@ -1,5 +1,6 @@
 class Params:
-
+    # TODO: убарть все аргументы по умолчанию
+    # TODO: преобразовать в дата-класс?
     def __init__(self, lambda1=.5, lambda2=1, mu=3,
                  devices_amount=4, fragments_amounts=None,
                  queues_capacities=None):
@@ -12,6 +13,7 @@ class Params:
         a and b - second demand, default value = [a=3, b=2]
         :param queues_capacities: queue dimensions, similarly as list_amounts_of_fragments, default value = [10, 30]
         """
+        # TODO: убрать
         if fragments_amounts is None:
             fragments_amounts = [3, 2]
         if queues_capacities is None:
