@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     model = SplitMergeSystem(params, bar)
 
-    simulation_time = 1000000
+    simulation_time = 10000
     statistics = model.run(simulation_time)
 
     # TODO: __str__

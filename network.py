@@ -5,7 +5,7 @@ from entities.demand import Demand
 from entities.wrapper import DevicesWrapper
 from logs import log_arrival, log_full_queue, log_service_start, log_leaving, log_network_state
 from network_params import Params
-from progress_bar import ConsoleProgressBar
+from progress_bar import ConsoleProgressBar, ProgressBar
 from statistics import Statistics
 
 
@@ -20,7 +20,7 @@ class SplitMergeSystem:
 
     def __init__(self,
                  params: Params,
-                 progress_bar: ConsoleProgressBar):
+                 progress_bar: ProgressBar):
         """
 
         @param params:
@@ -113,7 +113,7 @@ class SplitMergeSystem:
         while self.times.current <= simulation_time:
             self.times.current = min(self.times.arrival, self.times.service_start, self.times.leaving)
 
-            self.progress_bar.print_progress(self.times.current, simulation_time)
+            self.progress_bar.update_progress(self.times.current, simulation_time)
             log_network_state(self.times, self.config["devices"])
 
             if self.times.current == self.times.arrival:
