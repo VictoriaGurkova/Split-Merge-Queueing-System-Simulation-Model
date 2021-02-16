@@ -60,7 +60,7 @@ class DevicesWrapper:
             for device in self.devices:
                 if not device.is_free and device.fragment.parent_id == demand_id:
                     lists_of_service_duration_fragments[demands_on_devices.index(demand_id)] \
-                        .append(device.service_duration)
+                        .append(device.end_service_time)
 
         return lists_of_service_duration_fragments
 
@@ -84,7 +84,7 @@ class DevicesWrapper:
         """
         min_end_service_time = self.get_min_end_service_time_for_demand()
         for device in self.devices:
-            if device.service_duration == min_end_service_time:
+            if device.end_service_time == min_end_service_time:
                 return device.fragment.parent_id
 
     def to_free_demand_fragments(self, demand_id: int):

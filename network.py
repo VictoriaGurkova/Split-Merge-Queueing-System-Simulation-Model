@@ -5,7 +5,7 @@ from entities.demand import Demand
 from entities.wrapper import DevicesWrapper
 from logs import log_arrival, log_full_queue, log_service_start, log_leaving, log_network_state
 from network_params import Params
-from progress_bar import ConsoleProgressBar, ProgressBar
+from progress_bar import ProgressBar
 from statistics import Statistics
 
 
@@ -32,10 +32,10 @@ class SplitMergeSystem:
 
         self.times = Clock()
         # устанавливаем время прибытия требования
-        self.times.update_arrival_time(self.params.common_lambda)
+        self.times.update_arrival_time(params.combined_lambda)
         self.statistics = Statistics(params.fragments_amounts)
 
-        self.probability_of_first_class_arrival = self.params.lambda1 / self.params.common_lambda
+        self.first_class_arrival_probability = params.lambda1 / params.combined_lambda
 
         # TODO: создать дата-класс для конфигурации сети
         # network configuration - number of queues and devices
@@ -54,7 +54,7 @@ class SplitMergeSystem:
     def arrival_of_demand(self):
         """Event describing the arrival of a demand to the system"""
 
-        class_id = define_arriving_demand_class(self.probability_of_first_class_arrival)
+        class_id = define_arriving_demand_class(self.first_class_arrival_probability)
         demand = Demand(self.times.arrival,
                         class_id, self.params.fragments_amounts[class_id])
 
@@ -65,7 +65,7 @@ class SplitMergeSystem:
         else:
             log_full_queue(demand, self.times.current)
 
-        self.times.update_arrival_time(self.params.common_lambda)
+        self.times.update_arrival_time(self.params.combined_lambda)
 
     def demand_service_start(self):
         """Event describing the start of servicing a demand"""

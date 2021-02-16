@@ -18,7 +18,7 @@ class Device:
         self.fragment = None
         self.is_free = True
         self.mu = mu
-        self.service_duration = float('-inf')
+        self.end_service_time = float('-inf')
 
     def to_occupy(self, fragment: Fragment, current_time: float):
         """The function describes fragment placing on the servicing device.
@@ -28,11 +28,11 @@ class Device:
         """
         self.is_free = False
         self.fragment = fragment
-        self.service_duration = current_time + expovariate(self.mu)
+        self.end_service_time = current_time + expovariate(self.mu)
 
     def to_free(self):
         """The function describes completing fragment servicing."""
 
         self.is_free = True
         self.fragment = None
-        self.service_duration = float('-inf')
+        self.end_service_time = float('-inf')
