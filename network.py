@@ -34,9 +34,6 @@ class SplitMergeSystem:
         # устанавливаем время прибытия первого требования
         self.times.update_arrival_time(params.combined_lambda)
 
-        # TODO: есть ли смысл создавать ее здесь, а не в run и сразу возвращать?
-        self.statistics = Statistics(params.fragments_amounts)
-
         self.first_class_arrival_probability = params.lambda1 / params.combined_lambda
 
         self.queues = [[] for _ in range(len(params.fragments_amounts))]
@@ -50,6 +47,8 @@ class SplitMergeSystem:
 
         @param simulation_time: model simulation duration
         """
+
+        statistics = Statistics(self.params.fragments_amounts)
 
         while self.times.current <= simulation_time:
             self.times.current = min(self.times.arrival, self.times.service_start, self.times.leaving)
@@ -67,8 +66,8 @@ class SplitMergeSystem:
                 self._leaving_demand()
                 continue
 
-        self.statistics.calculate_statistics(self.served_demands)
-        return self.statistics
+        statistics.calculate_statistics(self.served_demands)
+        return statistics
 
     def _arrival_of_demand(self) -> None:
         """Event describing the arrival of a demand to the system"""
