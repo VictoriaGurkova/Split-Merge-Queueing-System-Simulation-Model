@@ -1,12 +1,12 @@
-from random import expovariate as exp
+from random import random
 
-# TODO: убрать *
+from clock import Clock
 from entities.demand import Demand
 from entities.wrapper import DevicesWrapper
-from logs import *
+from logs import log_arrival, log_full_queue, log_service_start, log_leaving, log_network_state
+from network_params import Params
 from progress_bar import ProgressBar
 from statistics import Statistics
-from utils import *
 
 
 class SplitMergeSystem:
@@ -20,119 +20,117 @@ class SplitMergeSystem:
 
     def __init__(self,
                  params: Params,
-                 statistics: Statistics):
+                 progress_bar: ProgressBar):
         """
 
-        :param params: network configuration parameters
-        :param statistics: variable for counting and calculating statistics
-
+        @param params:
+        @param progress_bar:
         """
 
         self.params = params
-        # TODO: создавать, а не передавать
-        self.statistics = statistics
-        # TODO: зачем? если это все есть в params?
-        self.lambdas = {
-            "lambda1": params.lambda1,
-            "lambda2": params.lambda2,
-            "lambda": params.get_lambda()
-        }
-        self.prob1 = self.lambdas["lambda1"] / self.lambdas["lambda"]
-        # TODO: создать дата-класс для времен
-        self.times = {
-            "current": 0,
-            "arrival": exp(self.lambdas["lambda"]),
-            "service_start": float('inf'),
-            "leaving": float('inf')
-        }
-        # TODO: создать дата-класс для конфигурации сети
-        # network configuration - number of queues and devices
-        self.config = {
-            "queues": list([] for _ in range(len(params.fragments_amounts))),  # view: [[], []]
-            "devices": DevicesWrapper(params.mu, params.devices_amount)
-        }
-        # TODO: либо класс, либо отдельные переменные
-        # data for calculating statistics
-        self.stat = {
-            "demands_in_network": [],
-            "served_demands": []
-        }
+        self.progress_bar = progress_bar
 
-    def arrival_of_demand(self):
+        self.times = Clock()
+        # устанавливаем время прибытия первого требования
+        self.times.update_arrival_time(params.combined_lambda)
+
+        # TODO: есть ли смысл создавать ее здесь, а не в run и сразу возвращать?
+        self.statistics = Statistics(params.fragments_amounts)
+
+        self.first_class_arrival_probability = params.lambda1 / params.combined_lambda
+
+        self.queues = [[] for _ in range(len(params.fragments_amounts))]
+        self.devices = DevicesWrapper(params.mu, params.devices_amount)
+
+        self.demands_in_network = []
+        self.served_demands = []
+
+    def run(self, simulation_time: int) -> Statistics:
+        """
+
+        @param simulation_time: model simulation duration
+        """
+
+        while self.times.current <= simulation_time:
+            self.times.current = min(self.times.arrival, self.times.service_start, self.times.leaving)
+
+            self.progress_bar.update_progress(self.times.current, simulation_time)
+            log_network_state(self.times, self.devices)
+
+            if self.times.current == self.times.arrival:
+                self._arrival_of_demand()
+                continue
+            if self.times.current == self.times.service_start:
+                self._demand_service_start()
+                continue
+            if self.times.current == self.times.leaving:
+                self._leaving_demand()
+                continue
+
+        self.statistics.calculate_statistics(self.served_demands)
+        return self.statistics
+
+    def _arrival_of_demand(self) -> None:
         """Event describing the arrival of a demand to the system"""
 
-        class_id = define_arriving_demand_class(self.prob1)
-        demand = Demand(self.times["arrival"], class_id, self.params.fragments_amounts[class_id])
+        class_id = define_arriving_demand_class(self.first_class_arrival_probability)
+        demand = Demand(self.times.arrival,
+                        class_id, self.params.fragments_amounts[class_id])
 
-        if len(self.config["queues"][class_id]) < self.params.queues_capacities[class_id]:
-            self.times["service_start"] = self.times["current"]
-            self.config["queues"][class_id].append(demand)
-            log_arrival(demand, self.times["current"])
+        if len(self.queues[class_id]) < self.params.queues_capacities[class_id]:
+            self.times.service_start = self.times.current
+            self.queues[class_id].append(demand)
+            log_arrival(demand, self.times.current)
         else:
-            log_full_queue(demand, self.times["current"])
+            log_full_queue(demand, self.times.current)
 
-        self.times["arrival"] += exp(self.lambdas["lambda"])
+        self.times.update_arrival_time(self.params.combined_lambda)
 
-    def demand_service_start(self):
+    def _demand_service_start(self) -> None:
         """Event describing the start of servicing a demand"""
 
         # take demand from all queues in direct order
         for class_id in range(len(self.params.fragments_amounts)):
-            while self.config["devices"].can_occupy(class_id, self.params) and self.config["queues"][class_id]:
-                demand = self.config["queues"][class_id].pop(0)
-                self.config["devices"].distribute_fragments(demand, self.times["current"])
-                self.stat["demands_in_network"].append(demand)
-                demand.service_start_time = self.times["current"]
-                log_service_start(demand, self.times["current"])
+            while self.devices.can_occupy(class_id, self.params) and self.queues[class_id]:
+                demand = self.queues[class_id].pop(0)
+                self.devices.distribute_fragments(demand, self.times.current)
+                self.demands_in_network.append(demand)
+                demand.service_start_time = self.times.current
+                log_service_start(demand, self.times.current)
 
-        self.times["service_start"] = float('inf')
+        self.times.service_start = float('inf')
 
         # take the near term of the end of servicing demands
-        if self.config["devices"].get_id_demands_on_devices():
-            self.times["leaving"] = self.config["devices"].get_min_end_service_time_for_demand()
+        if self.devices.get_id_demands_on_devices():
+            self.times.leaving = self.devices.get_min_end_service_time_for_demand()
 
-    def leaving_demand(self):
+    def _leaving_demand(self) -> None:
         """Event describing a demand leaving the system"""
 
-        leaving_demand_id = self.config["devices"].get_demand_id_with_min_end_service_time()
-        self.config["devices"].to_free_demand_fragments(leaving_demand_id)
+        leaving_demand_id = self.devices.get_demand_id_with_min_end_service_time()
+        self.devices.to_free_demand_fragments(leaving_demand_id)
         demand = None
 
-        for d in self.stat["demands_in_network"]:
+        for d in self.demands_in_network:
             if d.id == leaving_demand_id:
                 demand = d
-                self.stat["demands_in_network"].remove(demand)
+                self.demands_in_network.remove(demand)
                 break
 
-        demand.leaving_time = self.times["current"]
-        self.stat["served_demands"].append(demand)
-        set_events_times(self.times, self.config, self.params)
+        demand.leaving_time = self.times.current
+        self.served_demands.append(demand)
+        self._set_events_times()
 
-        log_leaving(demand, self.times["current"])
+        log_leaving(demand, self.times.current)
 
-    # TODO: переименовать
-    def imitation(self, simulation_time: int):
-        """
+    def _set_events_times(self) -> None:
+        if self.devices.check_if_possible_put_demand_on_devices(self.params):
+            self.times.service_start = self.times.current
+        if not self.devices.get_id_demands_on_devices():
+            self.times.leaving = float('inf')
+        else:
+            self.times.leaving = self.devices.get_min_end_service_time_for_demand()
 
-        :param simulation_time: model simulation duration
-        """
-        # TODO: прогресс-бар вынеси в парметры
-        bar = ProgressBar(0, 'Progress: ')
 
-        while self.times["current"] <= simulation_time:
-            self.times["current"] = min(self.times["arrival"], self.times["service_start"], self.times["leaving"])
-
-            bar.print_progress(self.times["current"], simulation_time)
-            log_network_state(self.times, self.config["devices"])
-
-            if self.times["current"] == self.times["arrival"]:
-                self.arrival_of_demand()
-                continue
-            if self.times["current"] == self.times["service_start"]:
-                self.demand_service_start()
-                continue
-            if self.times["current"] == self.times["leaving"]:
-                self.leaving_demand()
-                continue
-        # TODO: возвращать объект статистики
-        self.statistics.calculate_stat(self.stat["served_demands"])
+def define_arriving_demand_class(probability: float) -> int:
+    return 0 if random() < probability else 1

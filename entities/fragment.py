@@ -3,14 +3,14 @@ class Fragment:
 
     __COUNT = 0
 
-    def __init__(self, parent_id: int):
+    def __init__(self, parent_id: int) -> None:
         """
 
-        :param parent_id: demand id
+        @param parent_id: demand id
         """
         Fragment.__COUNT += 1
         self.id = Fragment.__COUNT
         self.parent_id = parent_id
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'Demand parent id: ' + str(self.parent_id) + ". Fragment id: " + str(self.id)

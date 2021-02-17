@@ -6,12 +6,12 @@ class Demand:
 
     __COUNT = 0
 
-    def __init__(self, arrival_time: float, class_id: int, fragments_amount: int):
+    def __init__(self, arrival_time: float, class_id: int, fragments_amount: int) -> None:
         """
 
-        :param arrival_time: time of receipt of the demand in the system
-        :param class_id: demand class
-        :param fragments_amount: the number of fragments that make up the demand
+        @param arrival_time: time of receipt of the demand in the system
+        @param class_id: demand class
+        @param fragments_amount: the number of fragments that make up the demand
         """
         Demand.__COUNT += 1
         self.id = Demand.__COUNT

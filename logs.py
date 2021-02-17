@@ -29,4 +29,4 @@ def log_network_state(times, devices):
     logging.debug("Device's state with min time: " +
                   str(devices.get_service_duration_fragments()))
     logging.debug("Event times: = " +
-                  str([times["arrival"], times["service_start"], times["leaving"]]))
+                  str([times.arrival, times.service_start, times.leaving]))

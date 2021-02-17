@@ -8,31 +8,31 @@ class Device:
 
     __COUNT = 0
 
-    def __init__(self, mu: float):
+    def __init__(self, mu: float) -> None:
         """
 
-        :param mu: demand service rate
+        @param mu: demand service rate
         """
         Device.__COUNT += 1
         self.id = Device.__COUNT
         self.fragment = None
         self.is_free = True
         self.mu = mu
-        self.service_duration = float('-inf')
+        self.end_service_time = float('-inf')
 
-    def to_occupy(self, fragment: Fragment, current_time: float):
+    def to_occupy(self, fragment: Fragment, current_time: float) -> None:
         """The function describes fragment placing on the servicing device.
 
-        :param fragment: fragment of the demand placed on the device
-        :param current_time: current simulation time
+        @param fragment: fragment of the demand placed on the device
+        @param current_time: current simulation time
         """
         self.is_free = False
         self.fragment = fragment
-        self.service_duration = current_time + expovariate(self.mu)
+        self.end_service_time = current_time + expovariate(self.mu)
 
-    def to_free(self):
+    def to_free(self) -> None:
         """The function describes completing fragment servicing."""
 
         self.is_free = True
         self.fragment = None
-        self.service_duration = float('-inf')
+        self.end_service_time = float('-inf')
