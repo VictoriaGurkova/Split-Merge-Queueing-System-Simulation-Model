@@ -31,17 +31,14 @@ class SplitMergeSystem:
         self.progress_bar = progress_bar
 
         self.times = Clock()
-        # устанавливаем время прибытия требования
+        # устанавливаем время прибытия первого требования
         self.times.update_arrival_time(params.combined_lambda)
+
         self.statistics = Statistics(params.fragments_amounts)
 
         self.first_class_arrival_probability = params.lambda1 / params.combined_lambda
 
-        # TODO: создать дата-класс для конфигурации сети
-        # network configuration - number of queues and devices
-        self.config = {
-            "queues": list([] for _ in range(len(params.fragments_amounts))),  # view: [[], []]
-        }
+        self.queues = [[] for _ in range(len(params.fragments_amounts))]
         self.devices = DevicesWrapper(params.mu, params.devices_amount)
 
         self.demands_in_network = []
@@ -54,9 +51,9 @@ class SplitMergeSystem:
         demand = Demand(self.times.arrival,
                         class_id, self.params.fragments_amounts[class_id])
 
-        if len(self.config["queues"][class_id]) < self.params.queues_capacities[class_id]:
+        if len(self.queues[class_id]) < self.params.queues_capacities[class_id]:
             self.times.service_start = self.times.current
-            self.config["queues"][class_id].append(demand)
+            self.queues[class_id].append(demand)
             log_arrival(demand, self.times.current)
         else:
             log_full_queue(demand, self.times.current)
@@ -68,8 +65,8 @@ class SplitMergeSystem:
 
         # take demand from all queues in direct order
         for class_id in range(len(self.params.fragments_amounts)):
-            while self.devices.can_occupy(class_id, self.params) and self.config["queues"][class_id]:
-                demand = self.config["queues"][class_id].pop(0)
+            while self.devices.can_occupy(class_id, self.params) and self.queues[class_id]:
+                demand = self.queues[class_id].pop(0)
                 self.devices.distribute_fragments(demand, self.times.current)
                 self.demands_in_network.append(demand)
                 demand.service_start_time = self.times.current
