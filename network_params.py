@@ -11,5 +11,5 @@ class Params:
     queues_capacities: list
 
     @property
-    def combined_lambda(self):
+    def combined_lambda(self) -> float:
         return self.lambda1 + self.lambda2

@@ -44,7 +44,32 @@ class SplitMergeSystem:
         self.demands_in_network = []
         self.served_demands = []
 
-    def arrival_of_demand(self):
+    def run(self, simulation_time: int) -> Statistics:
+        """
+
+        @param simulation_time: model simulation duration
+        """
+
+        while self.times.current <= simulation_time:
+            self.times.current = min(self.times.arrival, self.times.service_start, self.times.leaving)
+
+            self.progress_bar.update_progress(self.times.current, simulation_time)
+            log_network_state(self.times, self.devices)
+
+            if self.times.current == self.times.arrival:
+                self._arrival_of_demand()
+                continue
+            if self.times.current == self.times.service_start:
+                self._demand_service_start()
+                continue
+            if self.times.current == self.times.leaving:
+                self._leaving_demand()
+                continue
+
+        self.statistics.calculate_stat(self.served_demands)
+        return self.statistics
+
+    def _arrival_of_demand(self) -> None:
         """Event describing the arrival of a demand to the system"""
 
         class_id = define_arriving_demand_class(self.first_class_arrival_probability)
@@ -60,7 +85,7 @@ class SplitMergeSystem:
 
         self.times.update_arrival_time(self.params.combined_lambda)
 
-    def demand_service_start(self):
+    def _demand_service_start(self) -> None:
         """Event describing the start of servicing a demand"""
 
         # take demand from all queues in direct order
@@ -78,7 +103,7 @@ class SplitMergeSystem:
         if self.devices.get_id_demands_on_devices():
             self.times.leaving = self.devices.get_min_end_service_time_for_demand()
 
-    def leaving_demand(self):
+    def _leaving_demand(self) -> None:
         """Event describing a demand leaving the system"""
 
         leaving_demand_id = self.devices.get_demand_id_with_min_end_service_time()
@@ -97,37 +122,12 @@ class SplitMergeSystem:
 
         log_leaving(demand, self.times.current)
 
-    def run(self, simulation_time: int) -> Statistics:
-        """
 
-        @param simulation_time: model simulation duration
-        """
-
-        while self.times.current <= simulation_time:
-            self.times.current = min(self.times.arrival, self.times.service_start, self.times.leaving)
-
-            self.progress_bar.update_progress(self.times.current, simulation_time)
-            log_network_state(self.times, self.devices)
-
-            if self.times.current == self.times.arrival:
-                self.arrival_of_demand()
-                continue
-            if self.times.current == self.times.service_start:
-                self.demand_service_start()
-                continue
-            if self.times.current == self.times.leaving:
-                self.leaving_demand()
-                continue
-
-        self.statistics.calculate_stat(self.served_demands)
-        return self.statistics
-
-
-def define_arriving_demand_class(probability: float):
+def define_arriving_demand_class(probability: float) -> int:
     return 0 if random() < probability else 1
 
 
-def set_events_times(times: Clock, devices: DevicesWrapper, params: Params):
+def set_events_times(times: Clock, devices: DevicesWrapper, params: Params) -> None:
     if devices.check_if_possible_put_demand_on_devices(params):
         times.service_start = times.current
     if not devices.get_id_demands_on_devices():
