@@ -34,6 +34,7 @@ class SplitMergeSystem:
         # устанавливаем время прибытия первого требования
         self.times.update_arrival_time(params.combined_lambda)
 
+        # TODO: есть ли смысл создавать ее здесь, а не в run и сразу возвращать?
         self.statistics = Statistics(params.fragments_amounts)
 
         self.first_class_arrival_probability = params.lambda1 / params.combined_lambda
@@ -66,7 +67,7 @@ class SplitMergeSystem:
                 self._leaving_demand()
                 continue
 
-        self.statistics.calculate_stat(self.served_demands)
+        self.statistics.calculate_statistics(self.served_demands)
         return self.statistics
 
     def _arrival_of_demand(self) -> None:
@@ -118,19 +119,18 @@ class SplitMergeSystem:
 
         demand.leaving_time = self.times.current
         self.served_demands.append(demand)
-        set_events_times(self.times, self.devices, self.params)
+        self._set_events_times()
 
         log_leaving(demand, self.times.current)
+
+    def _set_events_times(self) -> None:
+        if self.devices.check_if_possible_put_demand_on_devices(self.params):
+            self.times.service_start = self.times.current
+        if not self.devices.get_id_demands_on_devices():
+            self.times.leaving = float('inf')
+        else:
+            self.times.leaving = self.devices.get_min_end_service_time_for_demand()
 
 
 def define_arriving_demand_class(probability: float) -> int:
     return 0 if random() < probability else 1
-
-
-def set_events_times(times: Clock, devices: DevicesWrapper, params: Params) -> None:
-    if devices.check_if_possible_put_demand_on_devices(params):
-        times.service_start = times.current
-    if not devices.get_id_demands_on_devices():
-        times.leaving = float('inf')
-    else:
-        times.leaving = devices.get_min_end_service_time_for_demand()
