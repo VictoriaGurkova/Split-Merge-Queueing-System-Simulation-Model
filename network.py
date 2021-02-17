@@ -41,11 +41,8 @@ class SplitMergeSystem:
         # network configuration - number of queues and devices
         self.config = {
             "queues": list([] for _ in range(len(params.fragments_amounts))),  # view: [[], []]
-            "devices": DevicesWrapper(params.mu, params.devices_amount)
         }
-
-        # TODO: либо класс, либо отдельные переменные
-        # data for calculating statistics
+        self.devices = DevicesWrapper(params.mu, params.devices_amount)
 
         self.demands_in_network = []
         self.served_demands = []
@@ -71,9 +68,9 @@ class SplitMergeSystem:
 
         # take demand from all queues in direct order
         for class_id in range(len(self.params.fragments_amounts)):
-            while self.config["devices"].can_occupy(class_id, self.params) and self.config["queues"][class_id]:
+            while self.devices.can_occupy(class_id, self.params) and self.config["queues"][class_id]:
                 demand = self.config["queues"][class_id].pop(0)
-                self.config["devices"].distribute_fragments(demand, self.times.current)
+                self.devices.distribute_fragments(demand, self.times.current)
                 self.demands_in_network.append(demand)
                 demand.service_start_time = self.times.current
                 log_service_start(demand, self.times.current)
@@ -81,14 +78,14 @@ class SplitMergeSystem:
         self.times.service_start = float('inf')
 
         # take the near term of the end of servicing demands
-        if self.config["devices"].get_id_demands_on_devices():
-            self.times.leaving = self.config["devices"].get_min_end_service_time_for_demand()
+        if self.devices.get_id_demands_on_devices():
+            self.times.leaving = self.devices.get_min_end_service_time_for_demand()
 
     def leaving_demand(self):
         """Event describing a demand leaving the system"""
 
-        leaving_demand_id = self.config["devices"].get_demand_id_with_min_end_service_time()
-        self.config["devices"].to_free_demand_fragments(leaving_demand_id)
+        leaving_demand_id = self.devices.get_demand_id_with_min_end_service_time()
+        self.devices.to_free_demand_fragments(leaving_demand_id)
         demand = None
 
         for d in self.demands_in_network:
@@ -99,7 +96,7 @@ class SplitMergeSystem:
 
         demand.leaving_time = self.times.current
         self.served_demands.append(demand)
-        set_events_times(self.times, self.config, self.params)
+        set_events_times(self.times, self.devices, self.params)
 
         log_leaving(demand, self.times.current)
 
@@ -113,7 +110,7 @@ class SplitMergeSystem:
             self.times.current = min(self.times.arrival, self.times.service_start, self.times.leaving)
 
             self.progress_bar.update_progress(self.times.current, simulation_time)
-            log_network_state(self.times, self.config["devices"])
+            log_network_state(self.times, self.devices)
 
             if self.times.current == self.times.arrival:
                 self.arrival_of_demand()
@@ -133,10 +130,10 @@ def define_arriving_demand_class(probability: float):
     return 0 if random() < probability else 1
 
 
-def set_events_times(times: Clock, config: dict, params: Params):
-    if config["devices"].check_if_possible_put_demand_on_devices(params):
+def set_events_times(times: Clock, devices: DevicesWrapper, params: Params):
+    if devices.check_if_possible_put_demand_on_devices(params):
         times.service_start = times.current
-    if not config["devices"].get_id_demands_on_devices():
+    if not devices.get_id_demands_on_devices():
         times.leaving = float('inf')
     else:
-        times.leaving = config["devices"].get_min_end_service_time_for_demand()
+        times.leaving = devices.get_min_end_service_time_for_demand()
