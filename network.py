@@ -46,10 +46,9 @@ class SplitMergeSystem:
 
         # TODO: либо класс, либо отдельные переменные
         # data for calculating statistics
-        self.stat = {
-            "demands_in_network": [],
-            "served_demands": []
-        }
+
+        self.demands_in_network = []
+        self.served_demands = []
 
     def arrival_of_demand(self):
         """Event describing the arrival of a demand to the system"""
@@ -75,7 +74,7 @@ class SplitMergeSystem:
             while self.config["devices"].can_occupy(class_id, self.params) and self.config["queues"][class_id]:
                 demand = self.config["queues"][class_id].pop(0)
                 self.config["devices"].distribute_fragments(demand, self.times.current)
-                self.stat["demands_in_network"].append(demand)
+                self.demands_in_network.append(demand)
                 demand.service_start_time = self.times.current
                 log_service_start(demand, self.times.current)
 
@@ -92,14 +91,14 @@ class SplitMergeSystem:
         self.config["devices"].to_free_demand_fragments(leaving_demand_id)
         demand = None
 
-        for d in self.stat["demands_in_network"]:
+        for d in self.demands_in_network:
             if d.id == leaving_demand_id:
                 demand = d
-                self.stat["demands_in_network"].remove(demand)
+                self.demands_in_network.remove(demand)
                 break
 
         demand.leaving_time = self.times.current
-        self.stat["served_demands"].append(demand)
+        self.served_demands.append(demand)
         set_events_times(self.times, self.config, self.params)
 
         log_leaving(demand, self.times.current)
@@ -126,7 +125,7 @@ class SplitMergeSystem:
                 self.leaving_demand()
                 continue
 
-        self.statistics.calculate_stat(self.stat["served_demands"])
+        self.statistics.calculate_stat(self.served_demands)
         return self.statistics
 
 
