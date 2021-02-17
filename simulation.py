@@ -16,6 +16,5 @@ if __name__ == '__main__':
     simulation_time = 100000
     statistics = model.run(simulation_time)
 
-    # TODO: __str__
-    statistics.show()
+    print(statistics)
     # statistics.draw_plot()
