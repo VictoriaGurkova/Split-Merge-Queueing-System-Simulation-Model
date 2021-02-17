@@ -73,7 +73,7 @@ class SplitMergeSystem:
     def _arrival_of_demand(self) -> None:
         """Event describing the arrival of a demand to the system"""
 
-        class_id = define_arriving_demand_class(self.first_class_arrival_probability)
+        class_id = self._define_arriving_demand_class(self.first_class_arrival_probability)
         demand = Demand(self.times.arrival,
                         class_id, self.params.fragments_amounts[class_id])
 
@@ -131,6 +131,6 @@ class SplitMergeSystem:
         else:
             self.times.leaving = self.devices.get_min_end_service_time_for_demand()
 
-
-def define_arriving_demand_class(probability: float) -> int:
-    return 0 if random() < probability else 1
+    @staticmethod
+    def _define_arriving_demand_class(probability: float) -> int:
+        return 0 if random() < probability else 1
