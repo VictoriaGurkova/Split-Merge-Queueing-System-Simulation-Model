@@ -39,9 +39,9 @@ class Statistics:
         plt.show()
 
     def __str__(self) -> str:
-        s = f"\ntotal statistics:\n{self.total_statistics}"
+        s = f"\ntotal statistics:\n{self.total_statistics}\n"
         for cs in self.class_statistics:
-            s += f"\n\t{cs}"
+            s += f"\n{cs}"
         return s
 
 
@@ -58,7 +58,7 @@ class ClassStatistics:
         calculate(self.demands, self.statistics)
 
     def __str__(self) -> str:
-        return f"class id: {self.class_id} -> {self.statistics}"
+        return f"class id: {self.class_id} -> \n\t{self.statistics}\n"
 
 
 @dataclass
