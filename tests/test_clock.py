@@ -7,6 +7,8 @@ class TestClock(TestCase):
 
     def test_update_arrival_time(self):
         times = Clock()
-        self.assertEqual(times.arrival, 0)
+        default_arrival_value = 0
+
+        self.assertEqual(times.arrival, default_arrival_value)
         times.update_arrival_time(rate=1)
-        self.assertNotEqual(times.arrival, 0)
+        self.assertNotEqual(times.arrival, default_arrival_value)

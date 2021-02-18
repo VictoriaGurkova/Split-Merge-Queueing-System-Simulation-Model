@@ -2,6 +2,7 @@ from unittest import TestCase
 
 
 class TestSplitMergeSystem(TestCase):
+
     def test_run(self):
         self.fail()
 

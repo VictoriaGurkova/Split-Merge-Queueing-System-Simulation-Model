@@ -2,6 +2,7 @@ from unittest import TestCase
 
 
 class TestDevicesWrapper(TestCase):
+
     def test_distribute_fragments(self):
         self.fail()
 
