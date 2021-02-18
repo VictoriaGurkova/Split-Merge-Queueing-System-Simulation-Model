@@ -23,3 +23,7 @@ class Demand:
         self.fragments = [Fragment(self.id) for _ in range(fragments_amount)]
 
         Demand.__COUNT += 1
+
+    @staticmethod
+    def _reset_counter():
+        Demand.__COUNT = 0
