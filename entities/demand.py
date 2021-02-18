@@ -13,7 +13,6 @@ class Demand:
         @param class_id: demand class
         @param fragments_amount: the number of fragments that make up the demand
         """
-        Demand.__COUNT += 1
         self.id = Demand.__COUNT
         self.arrival_time = arrival_time
         self.service_start_time = None
@@ -22,3 +21,9 @@ class Demand:
         self.fragments_amount = fragments_amount
         Fragment.__COUNT = 0
         self.fragments = [Fragment(self.id) for _ in range(fragments_amount)]
+
+        Demand.__COUNT += 1
+
+    @staticmethod
+    def _reset_counter():
+        Demand.__COUNT = 0

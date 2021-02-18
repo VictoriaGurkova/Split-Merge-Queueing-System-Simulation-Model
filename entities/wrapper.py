@@ -93,4 +93,3 @@ class DevicesWrapper:
         """Checking whether it is possible to place a demand on devices"""
         return bool([True for class_id in range(len(params.fragments_amounts))
                     if self.can_occupy(class_id, params)])
-
