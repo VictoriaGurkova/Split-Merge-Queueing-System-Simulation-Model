@@ -8,9 +8,10 @@ class Fragment:
 
         @param parent_id: demand id
         """
-        Fragment.__COUNT += 1
         self.id = Fragment.__COUNT
         self.parent_id = parent_id
+
+        Fragment.__COUNT += 1
 
     def __str__(self) -> str:
         return 'Demand parent id: ' + str(self.parent_id) + ". Fragment id: " + str(self.id)
