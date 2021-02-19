@@ -24,9 +24,9 @@ def log_leaving(demand, current_time):
                   ". Current Time: " + str(current_time))
 
 
-def log_network_state(times, devices):
-    logging.debug("Device's state: " + str(devices.get_id_demands_on_devices()))
-    logging.debug("Device's state with min time: " +
-                  str(devices.get_service_duration_fragments()))
+def log_network_state(times, servers):
+    logging.debug("Server's state: " + str(servers.get_demands_ids_on_servers()))
+    logging.debug("Server's state with min time: " +
+                  str(servers.get_fragments_service_durations()))
     logging.debug("Event times: = " +
                   str([times.arrival, times.service_start, times.leaving]))

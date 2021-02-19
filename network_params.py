@@ -6,8 +6,8 @@ class Params:
     mu: float
     lambda1: float
     lambda2: float
-    devices_amount: int
-    fragments_amounts: list
+    servers_number: int
+    fragments_numbers: list
     queues_capacities: list
 
     @property
