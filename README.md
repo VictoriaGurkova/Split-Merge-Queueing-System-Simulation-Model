@@ -1,5 +1,10 @@
-Researching of Split-Merge Queueing System with two demand classes and losses 
+Study of Split-Merge Queueing System with two demand classes and losses 
 ======
+
+[![CodeQL](https://github.com/ViktoriaGurkova/Split-Merge-Queueing-System/actions/workflows/python-app.yml/badge.svg)](https://github.com/ViktoriaGurkova/Split-Merge-Queueing-System/actions/workflows/python-app.yml) 
+[![Build](https://github.com/ViktoriaGurkova/Split-Merge-Queueing-System/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ViktoriaGurkova/Split-Merge-Queueing-System/actions/workflows/codeql-analysis.yml)
+
+
 
 ### Введение
 Системы массового обслуживания (СМО) с 
