@@ -2,43 +2,43 @@ from random import randint
 from unittest import TestCase, skip
 
 from entities.demand import Demand
-from entities.wrapper import DevicesWrapper
+from entities.wrapper import ServersWrapper
 
 
-class TestDevicesWrapper(TestCase):
+class TestServersWrapper(TestCase):
 
     def setUp(self) -> None:
-        self.amount_of_devices = randint(2, 10)
-        self.wrapper = DevicesWrapper(mu=1, amount_of_devices=self.amount_of_devices)
+        self.servers_number = randint(2, 10)
+        self.wrapper = ServersWrapper(mu=1, servers_number=self.servers_number)
 
     @skip
     def test_distribute_fragments(self):
         self.fail()
 
-    def test_get_amount_of_free_devices(self):
-        self.assertEqual(self.wrapper.get_amount_of_free_devices(), self.amount_of_devices)
+    def test_get_number_of_free_servers(self):
+        self.assertEqual(self.wrapper.get_number_of_free_servers(), self.servers_number)
 
-        fragments_amount = randint(1, self.amount_of_devices)
+        fragments_number = randint(1, self.servers_number)
         self.wrapper.distribute_fragments(Demand(arrival_time=0,
                                                  class_id=0,
-                                                 fragments_amount=fragments_amount),
+                                                 fragments_number=fragments_number),
                                           current_time=0)
-        self.assertEqual(self.wrapper.get_amount_of_free_devices(), self.amount_of_devices - fragments_amount)
+        self.assertEqual(self.wrapper.get_number_of_free_servers(), self.servers_number - fragments_number)
 
     # TODO: дописать
     @skip
     def test_get_min_end_service_time_for_demand(self):
         self.wrapper.distribute_fragments(Demand(arrival_time=0,
                                                  class_id=0,
-                                                 fragments_amount=randint(1, self.amount_of_devices)),
+                                                 fragments_number=randint(1, self.servers_number)),
                                           current_time=0)
 
     @skip
-    def test_get_service_duration_fragments(self):
+    def test_get_fragments_service_duration(self):
         self.fail()
 
     @skip
-    def test_get_id_demands_on_devices(self):
+    def test_get_demands_ids_on_servers(self):
         self.fail()
 
     @skip
@@ -54,5 +54,5 @@ class TestDevicesWrapper(TestCase):
         self.fail()
 
     @skip
-    def test_check_if_possible_put_demand_on_devices(self):
+    def test_check_if_possible_put_demand_on_servers(self):
         self.fail()

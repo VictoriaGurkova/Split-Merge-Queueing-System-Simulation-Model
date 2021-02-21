@@ -3,8 +3,8 @@ from random import expovariate
 from entities.fragment import Fragment
 
 
-class Device:
-    """The class describes the servicing device essence in a queuing network."""
+class Server:
+    """The class describes the server essence in a queuing network."""
 
     __COUNT = 0
 
@@ -13,17 +13,17 @@ class Device:
 
         @param mu: demand service rate
         """
-        Device.__COUNT += 1
-        self.id = Device.__COUNT
+        Server.__COUNT += 1
+        self.id = Server.__COUNT
         self.fragment = None
         self.is_free = True
         self.mu = mu
         self.end_service_time = float('-inf')
 
     def to_occupy(self, fragment: Fragment, current_time: float) -> None:
-        """The function describes fragment placing on the servicing device.
+        """The function describes fragment placing on the server.
 
-        @param fragment: fragment of the demand placed on the device
+        @param fragment: fragment of the demand placed on the server
         @param current_time: current simulation time
         """
         self.is_free = False
