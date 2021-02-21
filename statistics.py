@@ -22,22 +22,6 @@ class Statistics:
         for demand in demands:
             self.responses.append(demand.leaving_time - demand.arrival_time)
 
-    # TODO: зачем? куда?
-    def draw_plot(self):
-        fig, (ax1, ax2) = plt.subplots(
-            nrows=1, ncols=2,
-            figsize=(20, 10)
-        )
-        ax1.plot(self.responses)
-        ax1.set_xlabel("Количество требований")
-        ax1.set_ylabel("Длительность пребывания в сети")
-
-        ax2.hist(self.responses)
-        ax2.set_xlabel("Длительность пребывания в сети")
-        ax2.set_ylabel("Количество требований")
-
-        plt.show()
-
     def __str__(self) -> str:
         s = f"\ntotal statistics:\n{self.total_statistics}\n"
         for cs in self.class_statistics:
