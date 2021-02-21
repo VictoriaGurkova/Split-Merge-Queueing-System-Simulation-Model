@@ -1,4 +1,4 @@
-Researching of Split-Merge Queueing System with two demand classes and losses 
+Study of a Split-Merge Queueing System with two demand classes and losses 
 ======
 
 ### Введение
