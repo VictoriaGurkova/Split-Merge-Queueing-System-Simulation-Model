@@ -54,6 +54,9 @@ class StatisticalFields:
 
 
 def calculate(demands: list, statistics: StatisticalFields) -> None:
+    if statistics.demands_number == 0:
+        return
+
     for demand in demands:
         statistics.avg_response_time += demand.leaving_time - demand.arrival_time
         statistics.avg_time_in_queue += demand.service_start_time - demand.arrival_time
