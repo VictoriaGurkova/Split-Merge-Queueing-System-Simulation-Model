@@ -93,7 +93,7 @@ class SplitMergeSystem:
 
         # take demand from queues according to certain policy
         while self._servers.can_any_class_occupy(self._params):
-            class_id = self._selection_policy()
+            class_id = self._selection_policy(self._get_state(), self._params)
             if self._queues[class_id] and self._servers.can_occupy(class_id, self._params):
                 demand = self._queues[class_id].pop(0)
                 self._servers.distribute_fragments(demand, self._times.current)
@@ -135,6 +135,11 @@ class SplitMergeSystem:
             self._times.leaving = float('inf')
         else:
             self._times.leaving = self._servers.get_min_end_service_time_for_demand()
+
+    def _get_state(self) -> list:
+        return [len(self._queues[0]),
+                len(self._queues[1]),
+                self._servers.get_number_of_free_servers()]
 
     @staticmethod
     def _define_arriving_demand_class(probability: float) -> int:

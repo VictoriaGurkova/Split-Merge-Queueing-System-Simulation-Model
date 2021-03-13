@@ -13,7 +13,7 @@ if __name__ == '__main__':
                     queues_capacities=[10, 10])
     bar = ConsoleProgressBar('Progress: ')
 
-    model = SplitMergeSystem(params, bar, SelectionPolicy.always_from_first)
+    model = SplitMergeSystem(params, bar, SelectionPolicy.direct_order)
 
     simulation_time = 100000
     statistics = model.run(simulation_time)
