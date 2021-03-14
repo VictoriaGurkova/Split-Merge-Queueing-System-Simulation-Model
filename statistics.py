@@ -64,8 +64,3 @@ def calculate(demands: list, statistics: StatisticalFields) -> None:
     statistics.avg_response_time /= statistics.demands_number
     statistics.avg_time_in_queue /= statistics.demands_number
     statistics.avg_time_on_servers /= statistics.demands_number
-
-
-if __name__ == '__main__':
-    sf = StatisticalFields()
-    print(sf)
