@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from clock import Clock
+from src.clock import Clock
 
 
 class TestClock(TestCase):

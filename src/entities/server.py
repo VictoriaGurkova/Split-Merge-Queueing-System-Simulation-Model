@@ -1,6 +1,6 @@
 from random import expovariate
 
-from entities.fragment import Fragment
+from src.entities.fragment import Fragment
 
 
 class Server:

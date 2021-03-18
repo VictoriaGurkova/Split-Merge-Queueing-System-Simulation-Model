@@ -1,5 +1,3 @@
-
-
 class Fragment:
     """The class describes the essence of the fragments that make up the demands entered the system."""
     __COUNT = 0

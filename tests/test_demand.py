@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from entities.demand import Demand
+from src.entities.demand import Demand
 
 
 class TestDemand(TestCase):

@@ -1,12 +1,12 @@
 from random import random
 
-from clock import Clock
-from entities.demand import Demand
-from entities.wrapper import ServersWrapper
-from logs import log_arrival, log_full_queue, log_service_start, log_leaving, log_network_state
-from network_params import Params
-from progress_bar import ProgressBar
-from statistics import Statistics
+from src.clock import Clock
+from src.entities.demand import Demand
+from src.entities.wrapper import ServersWrapper
+from src.logs import log_arrival, log_full_queue, log_service_start, log_leaving, log_network_state
+from src.network_params import Params
+from src.progress_bar import ProgressBar
+from src.statistics_network import Statistics
 
 
 class SplitMergeSystem:

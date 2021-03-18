@@ -1,10 +1,10 @@
-from network import SplitMergeSystem
+from network_simulation import SplitMergeSystem
 from network_params import Params
 from progress_bar import ConsoleProgressBar
 
 
 # this code initializes network parameters, starts statistics and performs simulation split-merge network
-from selection_policy import SelectionPolicy
+from src.selection_policy import SelectionPolicy
 
 if __name__ == '__main__':
     params = Params(mu=3, lambda1=.5, lambda2=1,
@@ -19,4 +19,3 @@ if __name__ == '__main__':
     statistics = model.run(simulation_time)
 
     print(statistics)
-    # statistics.draw_plot()

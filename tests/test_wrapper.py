@@ -1,8 +1,8 @@
 from random import randint
 from unittest import TestCase, skip
 
-from entities.demand import Demand
-from entities.wrapper import ServersWrapper
+from src.entities.demand import Demand
+from src.entities.wrapper import ServersWrapper
 
 
 class TestServersWrapper(TestCase):

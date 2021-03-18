@@ -1,6 +1,6 @@
-from entities.demand import Demand
-from entities.server import Server
-from network_params import Params
+from src.entities.demand import Demand
+from src.entities.server import Server
+from src.network_params import Params
 
 
 class ServersWrapper:
