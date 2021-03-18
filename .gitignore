@@ -3,3 +3,5 @@ __pycache__
 pic
 venv
 *.log
+
+pytest-coverage.txt
