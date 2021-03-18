@@ -28,3 +28,7 @@ class SelectionPolicy:
             return 1
         else:
             return 0
+
+    @staticmethod
+    def new_selection_policy(state: list, params: Params):
+        pass
