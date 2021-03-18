@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from entities.fragment import Fragment
+from src.entities.fragment import Fragment
 
 
 class TestFragment(TestCase):

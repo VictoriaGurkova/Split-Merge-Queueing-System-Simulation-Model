@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from entities.server import Server
-from entities.fragment import Fragment
+from src.entities.server import Server
+from src.entities.fragment import Fragment
 
 
 class TestServer(TestCase):

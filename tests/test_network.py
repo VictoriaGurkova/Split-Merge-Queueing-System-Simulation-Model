@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest import skip
 
-from network import SplitMergeSystem
+from src.network_simulation import SplitMergeSystem
 
 
 class TestSplitMergeSystem(TestCase):

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from network_params import Params
+from src.network_params import Params
 
 
 class TestParams(TestCase):

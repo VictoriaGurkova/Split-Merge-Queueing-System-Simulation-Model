@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-import matplotlib.pyplot as plt
-
 
 class Statistics:
 
@@ -54,6 +52,9 @@ class StatisticalFields:
 
 
 def calculate(demands: list, statistics: StatisticalFields) -> None:
+    if statistics.demands_number == 0:
+        return
+
     for demand in demands:
         statistics.avg_response_time += demand.leaving_time - demand.arrival_time
         statistics.avg_time_in_queue += demand.service_start_time - demand.arrival_time
@@ -61,8 +62,3 @@ def calculate(demands: list, statistics: StatisticalFields) -> None:
     statistics.avg_response_time /= statistics.demands_number
     statistics.avg_time_in_queue /= statistics.demands_number
     statistics.avg_time_on_servers /= statistics.demands_number
-
-
-if __name__ == '__main__':
-    sf = StatisticalFields()
-    print(sf)
