@@ -7,7 +7,7 @@ from progress_bar import ConsoleProgressBar
 from src.selection_policy import SelectionPolicy
 
 if __name__ == '__main__':
-    params = Params(mu=3, lambda1=.5, lambda2=1,
+    params = Params(mu=3, lambda1=.1, lambda2=1,
                     servers_number=5,
                     fragments_numbers=[2, 3],
                     queues_capacities=[10, 10])

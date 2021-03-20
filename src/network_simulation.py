@@ -92,9 +92,21 @@ class SplitMergeSystem:
         """Event describing the start of servicing a demand"""
 
         # take demand from queues according to certain policy
-        while self._servers.can_any_class_occupy(self._params):
-            class_id = self._selection_policy(self._get_current_state(), self._params)
-            if self._queues[class_id] and self._servers.can_occupy(class_id, self._params):
+        # TODO
+        while self._servers.can_some_class_occupy(self._params):
+            class_id = None
+            state = self._get_current_state()
+            all_queue_not_empty = state[0] and state[1]
+            assert state[0] == len(self._queues[0]), "error"
+            assert state[1] == len(self._queues[1]), "error"
+            if all_queue_not_empty and self._servers.can_any_class_occupy(self._params):
+                class_id = self._selection_policy(self._get_current_state(), self._params)
+            if class_id is None:
+                for i in range(len(self._params.fragments_numbers)):
+                    if self._servers.can_occupy(i, self._params) and self._queues[i]:
+                        class_id = i
+                        break
+            if class_id is not None:
                 demand = self._queues[class_id].pop(0)
                 self._servers.distribute_fragments(demand, self._times.current)
                 self._demands_in_network.append(demand)

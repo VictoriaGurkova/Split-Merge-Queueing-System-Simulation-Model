@@ -81,12 +81,19 @@ class ServersWrapper:
             if not server.is_free and server.fragment.parent_id == demand_id:
                 server.to_free()
 
+    def can_some_class_occupy(self, params: Params) -> bool:
+        classes_number = len(params.fragments_numbers)
+        for i in range(classes_number):
+            if self.can_occupy(i, params):
+                return True
+        return False
+
     def can_any_class_occupy(self, params: Params) -> bool:
         classes_number = len(params.fragments_numbers)
-        can_occupy_systems = False
         for i in range(classes_number):
-            can_occupy_systems = self.can_occupy(i, params)
-        return can_occupy_systems
+            if not self.can_occupy(i, params):
+                return False
+        return True
 
     def can_occupy(self, class_id: int, params: Params) -> bool:
         """The function checks if the this class demand can service on the servers.
