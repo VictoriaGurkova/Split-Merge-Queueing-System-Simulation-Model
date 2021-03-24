@@ -91,21 +91,24 @@ class SplitMergeSystem:
     def _demand_service_start(self) -> None:
         """Event describing the start of servicing a demand"""
 
-        # take demand from queues according to certain policy
-        # TODO
         while self._servers.can_some_class_occupy(self._params):
             class_id = None
             state = self._get_current_state()
             all_queue_not_empty = state[0] and state[1]
-            assert state[0] == len(self._queues[0]), "error"
-            assert state[1] == len(self._queues[1]), "error"
-            if all_queue_not_empty and self._servers.can_any_class_occupy(self._params):
-                class_id = self._selection_policy(self._get_current_state(), self._params)
+
+            assert state[0] == len(self._queues[0]), "error q1"
+            assert state[1] == len(self._queues[1]), "error q2"
+
+            can_apply_policy = all_queue_not_empty and self._servers.can_any_class_occupy(self._params)
+            if can_apply_policy:
+                class_id = self._selection_policy(state, self._params)
+
             if class_id is None:
                 for i in range(len(self._params.fragments_numbers)):
                     if self._servers.can_occupy(i, self._params) and self._queues[i]:
                         class_id = i
                         break
+
             if class_id is not None:
                 demand = self._queues[class_id].pop(0)
                 self._servers.distribute_fragments(demand, self._times.current)
@@ -117,8 +120,8 @@ class SplitMergeSystem:
 
         self._times.service_start = float('inf')
 
-        # take the near term of the end of servicing demands
-        if self._servers.get_demands_ids_on_servers():
+        demand_exists = bool(self._servers.get_demands_ids_on_servers())
+        if demand_exists:
             self._times.leaving = self._servers.get_min_end_service_time_for_demand()
 
     def _demand_leaving(self) -> None:
