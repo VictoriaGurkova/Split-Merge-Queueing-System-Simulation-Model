@@ -14,7 +14,7 @@ class SplitMergeSystem:
 
     Two classes of demand, two queues for demand.
     The progression of simulation time is from event to event.
-    Events: arrival demand, start service demand and leaving demand
+    Events: arrival demand, start service demand and leaving demand.
 
     """
 
@@ -34,7 +34,7 @@ class SplitMergeSystem:
         self._progress_bar = progress_bar
 
         self._times = Clock()
-        # устанавливаем время прибытия первого требования
+        # set the arrival time of the first demand
         self._times.update_arrival_time(params.combined_lambda)
 
         self._first_class_arrival_probability = params.lambda1 / params.combined_lambda
@@ -48,7 +48,7 @@ class SplitMergeSystem:
     def run(self, simulation_time: int) -> Statistics:
         """
 
-        @param simulation_time: model simulation duration
+        @param simulation_time: model simulation duration.
         """
 
         statistics = Statistics(self._params.fragments_numbers)
@@ -73,7 +73,7 @@ class SplitMergeSystem:
         return statistics
 
     def _demand_arrival(self) -> None:
-        """Event describing the arrival of a demand to the system"""
+        """Event describing the arrival of a demand to the system."""
 
         class_id = self._define_arriving_demand_class(self._first_class_arrival_probability)
         demand = Demand(self._times.arrival,
@@ -89,15 +89,12 @@ class SplitMergeSystem:
         self._times.update_arrival_time(self._params.combined_lambda)
 
     def _demand_service_start(self) -> None:
-        """Event describing the start of servicing a demand"""
+        """Event describing the start of servicing a demand."""
 
         while self._servers.can_some_class_occupy(self._params):
             class_id = None
             state = self._get_current_state()
             all_queue_not_empty = state[0] and state[1]
-
-            assert state[0] == len(self._queues[0]), "error q1"
-            assert state[1] == len(self._queues[1]), "error q2"
 
             can_apply_policy = all_queue_not_empty and self._servers.can_any_class_occupy(self._params)
             if can_apply_policy:
@@ -125,7 +122,7 @@ class SplitMergeSystem:
             self._times.leaving = self._servers.get_min_end_service_time_for_demand()
 
     def _demand_leaving(self) -> None:
-        """Event describing a demand leaving the system"""
+        """Event describing a demand leaving the system."""
 
         leaving_demand_id = self._servers.get_demand_id_with_min_end_service_time()
         self._servers.to_free_demand_fragments(leaving_demand_id)

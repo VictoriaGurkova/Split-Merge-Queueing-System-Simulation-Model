@@ -6,7 +6,7 @@ class ProgressBar:
 
     @abstractmethod
     def update_progress(self, time: float, max_time: float) -> None:
-        """Update your progress """
+        """Update your progress."""
 
 
 class ConsoleProgressBar(ProgressBar):
