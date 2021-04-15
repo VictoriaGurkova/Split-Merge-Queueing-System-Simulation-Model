@@ -1,6 +1,6 @@
 import logging
 
-logging.basicConfig(filename="../logging.log", level=logging.ERROR, filemode="w")
+logging.basicConfig(filename="logging.log", level=logging.ERROR, filemode="w")
 
 
 def log_arrival(demand, current_time):
